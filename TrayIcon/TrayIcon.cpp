@@ -3,50 +3,19 @@
 //
 
 #include "TrayIcon.h"
-namespace {
-    HMENU * Hmenu;
-    NOTIFYICONDATA * notifyIconData;
-    LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-        switch (message)                  /* handle the messages */
-        {
-            case WM_CREATE:
-                *Hmenu = CreatePopupMenu();
-                AppendMenu(*Hmenu, MF_GRAYED, ID_TRAY_INFO, TEXT("blulb"));
-                AppendMenu(*Hmenu, MF_STRING, ID_TRAY_EXIT, TEXT("Abort backup"));
-                break;
-            case WM_SYSICON:    // self defined WM_SYSICON message.
-            {
-                if ((lParam == WM_RBUTTONDOWN) || (lParam == WM_LBUTTONUP)) {
-                    // Get current mouse position.
-                    POINT curPoint;
-                    GetCursorPos(&curPoint);
 
-                    // TrackPopupMenu blocks the app until TrackPopupMenu returns
-                    UINT clicked = TrackPopupMenu(*Hmenu, TPM_RETURNCMD | TPM_NONOTIFY, curPoint.x, curPoint.y, 0,
-                                                  hwnd,
-                                                  NULL);
-
-                    SendMessage(hwnd, WM_NULL, 0, 0); // send benign message to window to make sure the menu goes away.
-                    if (clicked == ID_TRAY_EXIT) {
-                        // quit the application.
-                        Shell_NotifyIcon(NIM_DELETE, notifyIconData);
-                        PostQuitMessage(0);
-                    }
-                }
-            }
-                break;
-            case WM_DESTROY:
-                PostQuitMessage(0);
-                break;
-        }
-        return DefWindowProc(hwnd, message, wParam, lParam);
-    }
-}
 namespace Backup {
+
+    std::string TrayIcon::m_className;
+    HWND TrayIcon::m_Hwnd;
+    HMENU TrayIcon::m_Hmenu;
+    MSG TrayIcon::m_messages;
+    NOTIFYICONDATA TrayIcon::m_notifyIconData;
+    std::string TrayIcon::m_text;
+    TrayIcon * TrayIcon::m_instance;
+
     TrayIcon::TrayIcon() {
         m_className = "UniqueString1234";
-        Hmenu = &m_Hmenu;
-        notifyIconData = &m_notifyIconData;
         m_Hwnd = CreateDummyWindow(GetModuleHandle(NULL), ICO1, m_className.c_str());
 
         InitNotifyIconData();
@@ -117,5 +86,47 @@ namespace Backup {
         ModifyMenu(m_Hmenu, ID_TRAY_INFO, MF_STRING, ID_TRAY_INFO, m_text.c_str());
         memset(&m_notifyIconData.szTip, 0, 64);
         strncpy(m_notifyIconData.szTip, m_text.c_str(), (unsigned int) std::max(64, (int) m_text.length()));
+    }
+
+    LRESULT CALLBACK TrayIcon::WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+        switch (message)                  /* handle the messages */
+        {
+            case WM_CREATE:
+                m_Hmenu = CreatePopupMenu();
+                AppendMenu(m_Hmenu, MF_GRAYED, ID_TRAY_INFO, TEXT("blulb"));
+                AppendMenu(m_Hmenu, MF_STRING, ID_TRAY_EXIT, TEXT("Abort backup"));
+                break;
+            case WM_SYSICON:    // self defined WM_SYSICON message.
+            {
+                if ((lParam == WM_RBUTTONDOWN) || (lParam == WM_LBUTTONUP)) {
+                    // Get current mouse position.
+                    POINT curPoint;
+                    GetCursorPos(&curPoint);
+
+                    // TrackPopupMenu blocks the app until TrackPopupMenu returns
+                    UINT clicked = TrackPopupMenu(m_Hmenu, TPM_RETURNCMD | TPM_NONOTIFY, curPoint.x, curPoint.y, 0,
+                                                  hwnd,
+                                                  NULL);
+
+                    SendMessage(hwnd, WM_NULL, 0, 0); // send benign message to window to make sure the menu goes away.
+                    if (clicked == ID_TRAY_EXIT) {
+                        // quit the application.
+                        Shell_NotifyIcon(NIM_DELETE, &m_notifyIconData);
+                        PostQuitMessage(0);
+                    }
+                }
+            }
+                break;
+            case WM_DESTROY:
+                PostQuitMessage(0);
+                break;
+        }
+        return DefWindowProc(hwnd, message, wParam, lParam);
+    }
+
+    TrayIcon * TrayIcon::getInstance() {
+        if (m_instance == nullptr)
+            m_instance = new TrayIcon();
+        return m_instance;
     }
 }
