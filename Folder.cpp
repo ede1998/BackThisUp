@@ -55,4 +55,11 @@ namespace Backup {
             lg->log("Created directory " + path, LVL_INFO);
         }
     }
+
+    unsigned int Folder::getFileCount() {
+        auto tmp = (unsigned int) std::distance(std::begin(m_files), std::end(m_files));
+        for (Folder f: m_folders)
+            tmp += f.getFileCount();
+        return tmp;
+    }
 }

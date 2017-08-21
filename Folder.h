@@ -19,6 +19,7 @@ namespace Backup {
         string getRelPath();
         void addFile(File f);
         void addFolder(Folder f);
+        unsigned int getFileCount();
     protected:
         forward_list<File> m_files;
         forward_list<Folder> m_folders;
