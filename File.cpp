@@ -23,7 +23,7 @@ namespace Backup {
     }
 
     bool File::equals(const string &root1, const string &root2) {
-        if ((root1 == "") || (root2 == ""))
+        if (root1.empty() || root2.empty())
             return false;
 
         using std::ifstream;
@@ -57,18 +57,6 @@ namespace Backup {
 
 
     void File::copy(const string &rootSrc, const string &rootDest) {
-        /*using std::ifstream;
-        using std::ofstream;
-        ifstream source(findAbsolutePath(rootSrc, m_relPath), std::ios::binary);
-        ofstream dest(findAbsolutePath(rootDest, m_relPath), std::ios::binary);
-
-        std::istreambuf_iterator<char> begin_source(source);
-        std::istreambuf_iterator<char> end_source;
-        std::ostreambuf_iterator<char> begin_dest(dest);
-        std::copy(begin_source, end_source, begin_dest);
-
-        source.close();
-        dest.close();*/
         Logger * lg = Logger::getInstance();
         if (!CopyFile(findAbsolutePath(rootSrc, m_relPath).c_str(), findAbsolutePath(rootDest, m_relPath).c_str(), TRUE)) {
             lg->log("Could not copy file " + findAbsolutePath(rootSrc, m_relPath), LVL_ERROR);

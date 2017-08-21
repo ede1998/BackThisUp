@@ -46,12 +46,12 @@ namespace Backup {
     std::forward_list<string> findFiles(const std::string &path) {
         std::forward_list<string> files;
         string search_path = path + "\\*";
-        WIN32_FIND_DATA fd;
+        WIN32_FIND_DATA fd{};
         HANDLE hFind = FindFirstFile(search_path.c_str(), &fd);
         if(hFind != INVALID_HANDLE_VALUE) {
             do {
                 // read all (real) files in current folder
-                if(! (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) {
+                if(! (bool)(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) {
                     string tmp = fd.cFileName;
                     files.push_front(tmp);
                 }
@@ -64,13 +64,13 @@ namespace Backup {
     std::forward_list<string> findFolders(const std::string &path) {
         std::forward_list<string> folders;
         string search_path = path + "\\*";
-        WIN32_FIND_DATA fd;
+        WIN32_FIND_DATA fd{};
         HANDLE hFind = FindFirstFile(search_path.c_str(), &fd);
         if(hFind != INVALID_HANDLE_VALUE) {
             do {
                 // read all (real) subfolders in current folder
                 // skip default folder . and ..
-                if( (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) {
+                if( (bool)(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) {
                     string tmp = fd.cFileName;
                     if ((tmp != ".") && (tmp != ".."))
                         folders.push_front(tmp);
