@@ -80,27 +80,4 @@ namespace Backup {
         }
         return folders;
     }
-
-  /*int stop = 0;
-  std::forward_list<string> findFolders(const std::string &path) {
-      std::forward_list<string> files;
-      if (stop > 12) return files;
-      files.push_front("Folder1");
-      files.push_front("Folder2");
-      files.push_front("Folder3");
-      files.push_front("Folder4");
-      stop++;
-      return files;
-  }
-    std::forward_list<string> findFiles(const std::string &path) {
-        std::forward_list<string> files;
-        files.push_front("File1.f");
-        files.push_front("File2.f");
-        files.push_front("File3.f");
-        files.push_front("File4.f");
-        files.push_front("File5.f");
-        files.push_front("File6.f");
-        files.push_front("File7.f");
-        return files;
-    }*/
 }
