@@ -57,12 +57,12 @@ namespace Backup {
 
 
     void File::copy(const string &rootSrc, const string &rootDest) {
-        Logger * lg = Logger::getInstance();
+        Logger &lg = Logger::getInstance();
         if (!CopyFile(findAbsolutePath(rootSrc, m_relPath).c_str(), findAbsolutePath(rootDest, m_relPath).c_str(), TRUE)) {
-            lg->log("Could not copy file " + findAbsolutePath(rootSrc, m_relPath), LVL_ERROR);
+            lg.log("Could not copy file " + findAbsolutePath(rootSrc, m_relPath), LVL_ERROR);
         }
         else {
-            lg->log("Copied file " + findAbsolutePath(rootSrc, m_relPath), LVL_INFO);
+            lg.log("Copied file " + findAbsolutePath(rootSrc, m_relPath), LVL_INFO);
         }
 
     }

@@ -6,27 +6,24 @@
 #pragma once
 
 #include <string>
+#include <threads/mingw.thread.h>
+#include <atomic>
 #include "resource.h"
 
 namespace Backup {
     class TrayIcon {
     public:
-        static TrayIcon * getInstance();
-        void run();
-        void changeDescription(const std::string &text);
+        explicit TrayIcon(const std::string &txt);
+        ~TrayIcon();
+        void changeDescription(const std::string &txt);
     private:
-        static HWND m_Hwnd;
-        static HMENU m_Hmenu;
-        static MSG m_messages;
-        static NOTIFYICONDATA m_notifyIconData;
-        static std::string m_text;
-        static std::string m_className;
+        HWND m_Hwnd;
+        NOTIFYICONDATA m_notifyIconData;
+        std::string m_className;
 
-        static TrayIcon * m_instance;
+        static int m_uniqueID;
 
-        TrayIcon();
-        HWND CreateDummyWindow(HINSTANCE hInstance, int iconId, LPCTSTR taskbarTitle);
-        static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-        void InitNotifyIconData();
+        HWND CreateDummyWindow(HINSTANCE hInstance, LPCTSTR taskBarTitle);
+        void InitNotifyIconData(const std::string &txt);
     };
 }

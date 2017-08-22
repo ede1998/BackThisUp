@@ -43,16 +43,16 @@ namespace Backup {
     }
 
     void Folder::create(const string &path) {
-        Logger * lg = Logger::getInstance();
+        Logger &lg = Logger::getInstance();
         if (!CreateDirectory(path.c_str(), nullptr)) {
             DWORD err = GetLastError();
             if (!((err == ERROR_ALREADY_EXISTS) || (err == ERROR_PATH_NOT_FOUND))) {
-                lg->log("Could not create directory " + path, LVL_ERROR);
-                lg->log("ErrorCode: " + err, LVL_NORMAL);
+                lg.log("Could not create directory " + path, LVL_ERROR);
+                lg.log("ErrorCode: " + err, LVL_NORMAL);
             }
         }
         else {
-            lg->log("Created directory " + path, LVL_INFO);
+            lg.log("Created directory " + path, LVL_INFO);
         }
     }
 

@@ -6,11 +6,8 @@
 
 namespace Backup {
 
-    Logger * Logger::m_instance;
-
-    Logger * Logger::getInstance() {
-        if (m_instance == nullptr)
-            m_instance = new Logger();
+    Logger & Logger::getInstance() {
+        static Logger m_instance;
         return m_instance;
     }
 

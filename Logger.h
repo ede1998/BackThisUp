@@ -17,13 +17,11 @@ namespace Backup {
 
     class Logger {
     public:
-        static Logger *getInstance();
+        static Logger & getInstance();
         void log(std::string message, ELevel lvl);
     private:
         Logger() = default;
-
-        static Logger *m_instance;
-
+        ~Logger() = default;
         struct Message {
             std::string msg;
             ELevel lvl;

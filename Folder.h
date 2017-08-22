@@ -12,13 +12,12 @@
 
 using std::forward_list;
 using std::string;
+
 namespace Backup {
     class Folder {
     public:
         Folder(const string &rootPath, const string &relPath);
         string getRelPath();
-        void addFile(File f);
-        void addFolder(Folder f);
         unsigned int getFileCount();
     protected:
         forward_list<File> m_files;
@@ -29,5 +28,7 @@ namespace Backup {
     private:
         void load(const string &path, const string &rootPath);
         void create(const string &path);
+        void addFile(File f);
+        void addFolder(Folder f);
     };
 }

@@ -5,7 +5,7 @@ using std::string;
 
 namespace {
 
-    template <char delimiter>
+    template <char>
     class StringWithDelimiter: public string {};
 
     template<char delimiter>
