@@ -6,9 +6,10 @@
 
 namespace Backup {
     Folder::Folder(const string &rootPath, const string &relPath)
-            : m_relPath(relPath)
+            : m_relPath(relPath),
+              m_filesProcessed(0)
     {
-        load(findAbsolutePath(rootPath, relPath), rootPath);
+        load(FilesystemFunctions::findAbsolutePath(rootPath, relPath), rootPath);
     }
 
     string Folder::getRelPath() {
@@ -24,25 +25,28 @@ namespace Backup {
     }
 
     void Folder::load(const string &path, const string &rootPath) {
-        std::forward_list<string> f = Backup::findFiles(path);
+        std::forward_list<string> f = FilesystemFunctions::findFiles(path);
         for(const string &el: f)
             addFile(File(m_relPath + "\\" + el));
         f.clear();
-        f = Backup::findFolders(path);
+        f = FilesystemFunctions::findFolders(path);
         for(const string &el: f)
             addFolder(Folder(rootPath, m_relPath + "\\" + el));
     }
 
     void Folder::backup(const string &rootSrc, const string &rootDest, const string &rootComp) {
-        create(findAbsolutePath(rootDest, m_relPath));
-        for (File f: m_files)
+        create(FilesystemFunctions::findAbsolutePath(rootDest, m_relPath));
+        for (File &f: m_files) {
             if (!f.equals(rootSrc, rootComp))
                 f.copy(rootSrc, rootDest);
-        for (Folder f: m_folders)
+            m_filesProcessed++;
+        }
+        for (Folder &f: m_folders)
             f.backup(rootSrc, rootDest, rootComp);
     }
 
     void Folder::create(const string &path) {
+        using namespace LoggingTools;
         Logger &lg = Logger::getInstance();
         if (!CreateDirectory(path.c_str(), nullptr)) {
             DWORD err = GetLastError();
@@ -61,5 +65,12 @@ namespace Backup {
         for (Folder f: m_folders)
             tmp += f.getFileCount();
         return tmp;
+    }
+
+    unsigned int Folder::getFileProcessedCount() {
+        unsigned int tmp = 0;
+        for (Folder f: m_folders)
+            tmp += f.getFileProcessedCount();
+        return m_filesProcessed + tmp;
     }
 }

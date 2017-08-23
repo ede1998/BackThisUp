@@ -9,8 +9,12 @@
 #include <iostream>
 #include <deque>
 #include <memory>
+#include <fstream>
+#include <set>
+#include <ctime>
+#include "Functions.h"
 
-namespace Backup {
+namespace LoggingTools {
     enum ELevel {
         LVL_INFO, LVL_NORMAL, LVL_ERROR
     };
@@ -18,13 +22,20 @@ namespace Backup {
     class Logger {
     public:
         static Logger & getInstance();
+        void logToConsole(bool shouldLog = true);
         void log(std::string message, ELevel lvl);
+        bool save(const std::string &filePath);
+        bool save(const std::string &filePath, const std::set<ELevel> &logLvl);
     private:
-        Logger() = default;
+        Logger();
         ~Logger() = default;
+
+        bool m_LogsToConsole;
+
         struct Message {
             std::string msg;
             ELevel lvl;
+            std::time_t timestamp;
         };
         std::deque<Message> m_messages;
     };

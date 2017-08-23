@@ -3,11 +3,13 @@
 //
 
 #include "RootFolder.h"
+
 namespace Backup {
     RootFolder::RootFolder(const string &absPathSrc, const string &absPathDest)
             : Folder(absPathSrc, "."),
-              m_AbsPathDest(absPathDest),
-              m_AbsPathSrc(absPathSrc) {
+              m_AbsPathDest((FilesystemFunctions::isValidPath(absPathDest))?absPathDest:throw std::invalid_argument("Destionation path is invalid")),
+              m_AbsPathSrc((FilesystemFunctions::isValidPath(absPathSrc))?absPathSrc:throw std::invalid_argument("Source path is invalid"))
+    {
 
     }
 

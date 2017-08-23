@@ -23,6 +23,7 @@ namespace Backup {
     }
 
     bool File::equals(const string &root1, const string &root2) {
+        using FilesystemFunctions::findAbsolutePath;
         if (root1.empty() || root2.empty())
             return false;
 
@@ -57,6 +58,9 @@ namespace Backup {
 
 
     void File::copy(const string &rootSrc, const string &rootDest) {
+        using namespace LoggingTools;
+        using FilesystemFunctions::findAbsolutePath;
+
         Logger &lg = Logger::getInstance();
         if (!CopyFile(findAbsolutePath(rootSrc, m_relPath).c_str(), findAbsolutePath(rootDest, m_relPath).c_str(), TRUE)) {
             lg.log("Could not copy file " + findAbsolutePath(rootSrc, m_relPath), LVL_ERROR);

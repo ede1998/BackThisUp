@@ -1,3 +1,4 @@
+
 #include "Functions.h"
 
 using std::deque;
@@ -21,7 +22,7 @@ namespace {
     }
 }
 
-namespace Backup {
+namespace FilesystemFunctions {
     string findAbsolutePath(const string &absRoot, const string &relPath) {
         string path;
         deque<string> abs = split(absRoot);
@@ -80,4 +81,19 @@ namespace Backup {
         }
         return folders;
     }
+
+    bool isValidPath(const std::string &path) {
+        if (path.length() >= MAX_PATH)
+            return false;
+        return PathFileExists(path.c_str()) == TRUE;
+    }
 }
+
+namespace TimeFunctions {
+    std::string timeToString(std::time_t time) {
+        std::string res = ctime(&time);
+        res.erase(res.length() - 1);
+        return res;
+    }
+}
+

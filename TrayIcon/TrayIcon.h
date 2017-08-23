@@ -10,7 +10,7 @@
 #include <atomic>
 #include "resource.h"
 
-namespace Backup {
+namespace TrayIcon {
     class TrayIcon {
     public:
         explicit TrayIcon(const std::string &txt);

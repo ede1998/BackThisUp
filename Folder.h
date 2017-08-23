@@ -19,10 +19,13 @@ namespace Backup {
         Folder(const string &rootPath, const string &relPath);
         string getRelPath();
         unsigned int getFileCount();
+        unsigned int getFileProcessedCount();
     protected:
         forward_list<File> m_files;
         forward_list<Folder> m_folders;
         const string m_relPath;
+
+        unsigned int m_filesProcessed;
 
         void backup(const string &rootSrc, const string &rootDest, const string &rootComp);
     private:

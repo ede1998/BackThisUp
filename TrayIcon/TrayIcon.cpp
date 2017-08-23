@@ -4,7 +4,7 @@
 
 #include "TrayIcon.h"
 
-namespace Backup {
+namespace TrayIcon {
     int TrayIcon::m_uniqueID = 0;
 
     TrayIcon::TrayIcon(const std::string &txt) {
