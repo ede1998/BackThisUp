@@ -17,16 +17,17 @@ namespace Backup {
     class Folder {
     public:
         Folder(const string &rootPath, const string &relPath);
-        string getRelPath();
-        unsigned int getFileCount();
-        unsigned int getFileProcessedCount();
+        string getRelPath() const;
+        unsigned int getFileCount() const;
+        unsigned int getFileProcessedCount() const;
     protected:
         forward_list<File> m_files;
         forward_list<Folder> m_folders;
-        const string m_relPath;
+        string m_relPath;
 
-        unsigned int m_filesProcessed;
+        unsigned int m_filesProcessed{0};
 
+        Folder() = default;
         void backup(const string &rootSrc, const string &rootDest, const string &rootComp);
     private:
         void load(const string &path, const string &rootPath);

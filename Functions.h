@@ -14,6 +14,8 @@
 #include <shlwapi.h>
 #include <forward_list>
 #include <ctime>
+#include <vector>
+#include <algorithm>
 
 namespace FilesystemFunctions {
     std::string findAbsolutePath(const std::string &AbsRoot, const std::string &relPath);
@@ -24,4 +26,15 @@ namespace FilesystemFunctions {
 
 namespace TimeFunctions {
     std::string timeToString(std::time_t time);
+    struct time {
+        char minutes = 0;
+        char seconds = 0;
+        unsigned int hours = 0;
+    };
+
+    time secondsToTime(double seconds);
+}
+
+namespace StringFunctions {
+    std::string parseParameters(const std::vector<std::string> &parameters, const std::string &argPrefix);
 }

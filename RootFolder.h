@@ -12,12 +12,14 @@ namespace Backup {
     class RootFolder : public Folder {
     public:
         RootFolder(const string &absPathSrc, const string &absPathDest);
-        string getAbsPathSrc();
-        string getAbsPathDest();
+        RootFolder() noexcept;
+        string getAbsPathSrc() const;
+        string getAbsPathDest() const;
         void backup(const string &compPath = "");
     private:
-        const string m_AbsPathSrc;
-        const string m_AbsPathDest;
+        string m_AbsPathSrc;
+        string m_AbsPathDest;
+        bool m_empty;
     };
 }
 

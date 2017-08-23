@@ -6,13 +6,12 @@
 
 namespace Backup {
     Folder::Folder(const string &rootPath, const string &relPath)
-            : m_relPath(relPath),
-              m_filesProcessed(0)
+            : m_relPath(relPath)
     {
         load(FilesystemFunctions::findAbsolutePath(rootPath, relPath), rootPath);
     }
 
-    string Folder::getRelPath() {
+    string Folder::getRelPath() const {
         return m_relPath;
     }
 
@@ -60,16 +59,16 @@ namespace Backup {
         }
     }
 
-    unsigned int Folder::getFileCount() {
+    unsigned int Folder::getFileCount() const {
         auto tmp = (unsigned int) std::distance(std::begin(m_files), std::end(m_files));
-        for (Folder f: m_folders)
+        for (const Folder &f: m_folders)
             tmp += f.getFileCount();
         return tmp;
     }
 
-    unsigned int Folder::getFileProcessedCount() {
+    unsigned int Folder::getFileProcessedCount() const {
         unsigned int tmp = 0;
-        for (Folder f: m_folders)
+        for (const Folder &f: m_folders)
             tmp += f.getFileProcessedCount();
         return m_filesProcessed + tmp;
     }

@@ -7,23 +7,27 @@
 namespace TrayIcon {
     int TrayIcon::m_uniqueID = 0;
 
-    TrayIcon::TrayIcon(const std::string &txt) {
+    TrayIcon::TrayIcon(const std::string &txt)
+            : m_initFail(true)
+    {
         m_className = "UniqueString1234" + std::to_string(TrayIcon::m_uniqueID++);
         m_Hwnd = CreateDummyWindow(GetModuleHandle(nullptr), m_className.c_str());
-        if (m_Hwnd == nullptr) return;
+        if (m_Hwnd == nullptr)
+            return;
 
         InitNotifyIconData(txt);
         if (!Shell_NotifyIcon(NIM_ADD, &m_notifyIconData)) {
             CloseWindow(m_Hwnd);
             return;
         }
+        m_initFail = false;
     }
 
     TrayIcon::~TrayIcon() {
         CloseWindow(m_Hwnd);
     }
 
-    HWND TrayIcon::CreateDummyWindow(HINSTANCE hInstance, LPCTSTR taskBarTitle) {
+    HWND TrayIcon::CreateDummyWindow(HINSTANCE hInstance, LPCTSTR taskBarTitle) const {
         WNDCLASSEX wincl{};        /* Data structure for the window class */
         /* The Window structure */
         wincl.hInstance = hInstance;
@@ -78,5 +82,9 @@ namespace TrayIcon {
         memset(&m_notifyIconData.szTip, 0, 64);
         strncpy(m_notifyIconData.szTip, txt.c_str(), (unsigned int) std::max(64, (int) txt.length()));
         Shell_NotifyIcon(NIM_MODIFY, &m_notifyIconData);
+    }
+
+    bool TrayIcon::didFailToInitialize() const {
+        return m_initFail;
     }
 }

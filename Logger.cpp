@@ -15,14 +15,14 @@ namespace LoggingTools {
         return m_instance;
     }
 
-    void Logger::log(std::string message, ELevel lvl) {
+    void Logger::log(const std::string &message, ELevel lvl) {
         Message tmp;
         tmp.msg = message;
         tmp.lvl = lvl;
-        tmp.timestamp = time(0);
+        tmp.timestamp = time(nullptr);
         m_messages.push_back(tmp);
         if (m_LogsToConsole)
-            std::cout << TimeFunctions::timeToString(tmp.timestamp)<< "\t" << lvl << "\t" << message << std::endl;
+            std::cout << messageToString(tmp) << std::endl;
     }
 
     bool Logger::save(const std::string &filePath) {
@@ -35,7 +35,7 @@ namespace LoggingTools {
             return false;
         for (Message m: m_messages) {
             if (logLvl.find(m.lvl) != std::end(logLvl))
-                fs << TimeFunctions::timeToString(m.timestamp) << "\t" << m.lvl << "\t" << m.msg << std::endl;
+                fs << messageToString(m) << std::endl;
         }
         fs.close();
         return fs.failbit == std::ios::goodbit;
@@ -43,5 +43,24 @@ namespace LoggingTools {
 
     void Logger::logToConsole(bool shouldLog) {
         m_LogsToConsole = shouldLog;
+    }
+
+    std::string Logger::messageToString(const Logger::Message &msg) {
+        std::string lvl;
+        switch (msg.lvl) {
+            case LVL_ERROR:
+                lvl = "Error";
+                break;
+            case LVL_NORMAL:
+                lvl = "Default";
+                break;
+            case LVL_INFO:
+                lvl = "Information";
+                break;
+            default:
+                lvl = "Unknown";
+                break;
+        }
+        return TimeFunctions::timeToString(msg.timestamp) + "\t" + lvl + "\t" + msg.msg;
     }
 }

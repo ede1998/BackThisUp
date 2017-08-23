@@ -23,7 +23,7 @@ namespace LoggingTools {
     public:
         static Logger & getInstance();
         void logToConsole(bool shouldLog = true);
-        void log(std::string message, ELevel lvl);
+        void log(const std::string &message, ELevel lvl);
         bool save(const std::string &filePath);
         bool save(const std::string &filePath, const std::set<ELevel> &logLvl);
     private:
@@ -37,6 +37,7 @@ namespace LoggingTools {
             ELevel lvl;
             std::time_t timestamp;
         };
+        static std::string messageToString(const Message &msg);
         std::deque<Message> m_messages;
     };
 }
