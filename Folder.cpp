@@ -4,6 +4,8 @@
 
 #include "Folder.h"
 
+using std::string;
+
 namespace Backup {
     Folder::Folder(const string &rootPath, const string &relPath)
             : m_relPath(relPath)
@@ -25,11 +27,14 @@ namespace Backup {
 
     void Folder::load(const string &path, const string &rootPath) {
         std::forward_list<string> f = FilesystemFunctions::findFiles(path);
+        std::forward_list<string> f1 = FilesystemFunctions::findFolders(path);
+
+        if (std::find(std::begin(f), std::end(f), EXCLUDE_NAME) != std::end(f))
+            exclude(path + R"(\)" + EXCLUDE_NAME,f, f1);
+
         for(const string &el: f)
             addFile(File(m_relPath + "\\" + el));
-        f.clear();
-        f = FilesystemFunctions::findFolders(path);
-        for(const string &el: f)
+        for(const string &el: f1)
             addFolder(Folder(rootPath, m_relPath + "\\" + el));
     }
 
@@ -71,5 +76,10 @@ namespace Backup {
         for (const Folder &f: m_folders)
             tmp += f.getFileProcessedCount();
         return m_filesProcessed + tmp;
+    }
+
+    void Folder::exclude(const std::string &path, std::forward_list<string> &files, std::forward_list<string> &dirs) {
+        //TODO: read file line for line, exclude named files
+        //TODO: log these files
     }
 }

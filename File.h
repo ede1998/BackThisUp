@@ -14,15 +14,14 @@
 #include "Functions.h"
 #include "Logger.h"
 
-using std::string;
 namespace Backup {
     class File {
     public:
-        explicit File(const string &relPath);
-        string getRelPath();
-        bool equals(const string &root1, const string &root2);
-        void copy(const string &rootSrc, const string &rootDest);
+        explicit File(const std::string &relPath);
+        std::string getRelPath();
+        bool equals(const std::string &root1, const std::string &root2);
+        void copy(const std::string &rootSrc, const std::string &rootDest);
     private:
-        const string m_relPath;
+        const std::string m_relPath;
     };
 }

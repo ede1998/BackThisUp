@@ -25,7 +25,7 @@ namespace {
 }
 
 namespace FilesystemFunctions {
-    string findAbsolutePath(const string &absRoot, const string &relPath) {
+    string findAbsolutePath(const string &absRoot, const string &relPath) { //TODO: use absolute path
         string path;
         deque<string> abs = split(absRoot);
         deque<string> rel = split(relPath);

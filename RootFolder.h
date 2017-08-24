@@ -5,20 +5,19 @@
 
 #pragma once
 
-
 #include "Folder.h"
 
 namespace Backup {
     class RootFolder : public Folder {
     public:
-        RootFolder(const string &absPathSrc, const string &absPathDest);
+        RootFolder(const std::string &absPathSrc, const std::string &absPathDest);
         RootFolder() noexcept;
-        string getAbsPathSrc() const;
-        string getAbsPathDest() const;
-        void backup(const string &compPath = "");
+        std::string getAbsPathSrc() const;
+        std::string getAbsPathDest() const;
+        void backup(const std::string &compPath = "");
     private:
-        string m_AbsPathSrc;
-        string m_AbsPathDest;
+        std::string m_AbsPathSrc;
+        std::string m_AbsPathDest;
         bool m_empty;
     };
 }

@@ -2,20 +2,9 @@
 #include <threads/mingw.thread.h>
 #include <vector>
 #include <algorithm>
+#include "Definitions.h"
 #include "TrayIcon/TrayIcon.h"
 #include "RootFolder.h"
-
-#define PROGRAM_NAME "BackThisUp"
-#define SOURCE_DIR "-source="
-#define DEST_DIR "-destination="
-#define COMP_DIR "-compareDir="
-#define LOG_PATH "-log="
-#define LOG_LVL "-logLevel="
-#define HELP "-help"
-#define LOG_LVL_ERR "error"
-#define LOG_LVL_INFO "info"
-#define LOG_LVL_NORM "default"
-
 
 void displayHelp();
 

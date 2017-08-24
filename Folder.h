@@ -9,30 +9,29 @@
 #include <string>
 #include "Functions.h"
 #include "File.h"
-
-using std::forward_list;
-using std::string;
+#include "Definitions.h"
 
 namespace Backup {
     class Folder {
     public:
-        Folder(const string &rootPath, const string &relPath);
-        string getRelPath() const;
+        Folder(const std::string &rootPath, const std::string &relPath);
+        std::string getRelPath() const;
         unsigned int getFileCount() const;
         unsigned int getFileProcessedCount() const;
     protected:
-        forward_list<File> m_files;
-        forward_list<Folder> m_folders;
-        string m_relPath;
+        std::forward_list<File> m_files;
+        std::forward_list<Folder> m_folders;
+        std::string m_relPath;
 
         unsigned int m_filesProcessed{0};
 
         Folder() = default;
-        void backup(const string &rootSrc, const string &rootDest, const string &rootComp);
+        void backup(const std::string &rootSrc, const std::string &rootDest, const std::string &rootComp);
     private:
-        void load(const string &path, const string &rootPath);
-        void create(const string &path);
+        void load(const std::string &path, const std::string &rootPath);
+        void create(const std::string &path);
         void addFile(File f);
         void addFolder(Folder f);
+        void exclude(const std::string &path, std::forward_list<std::string> &files, std::forward_list<std::string> &dirs);
     };
 }

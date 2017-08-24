@@ -13,16 +13,16 @@ namespace {
     }
 }
 namespace Backup {
-    File::File(const string &relPath)
+    File::File(const std::string &relPath)
             : m_relPath(relPath)
     {
     }
 
-    string File::getRelPath() {
+    std::string File::getRelPath() {
         return m_relPath;
     }
 
-    bool File::equals(const string &root1, const string &root2) {
+    bool File::equals(const std::string &root1, const std::string &root2) {
         using FilesystemFunctions::findAbsolutePath;
         if (root1.empty() || root2.empty())
             return false;
@@ -57,7 +57,7 @@ namespace Backup {
     }
 
 
-    void File::copy(const string &rootSrc, const string &rootDest) {
+    void File::copy(const std::string &rootSrc, const std::string &rootDest) {
         using namespace LoggingTools;
         using FilesystemFunctions::findAbsolutePath;
 
