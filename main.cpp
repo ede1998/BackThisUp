@@ -12,6 +12,8 @@ int main(int argc, char **argv) {
     using namespace std;
     LoggingTools::Logger &loggerInstance = LoggingTools::Logger::getInstance();
 
+    bool doIgnoreExcludes = false;
+
     //parse input parameters
     vector<string> arguments(argv, argv + argc);
     arguments.erase(begin(arguments));
@@ -21,17 +23,24 @@ int main(int argc, char **argv) {
     string log    = StringFunctions::parseParameters(arguments, LOG_PATH);
     string logLvl = StringFunctions::parseParameters(arguments, LOG_LVL);
 
-    if (find(begin(arguments), end(arguments), HELP) != end(arguments)) {
+    if (StringFunctions::doesParameterExist(arguments, HELP)) {
         displayHelp();
         return 0;
     }
 
-    //silent mode
-    if (find(begin(arguments), end(arguments), "-silent") != end(arguments)) {
+
+    if (StringFunctions::doesParameterExist(arguments, SILENT)) {
         loggerInstance.log("Running in silent mode. No console output will be given.", LoggingTools::LVL_INFO);
         loggerInstance.logToConsole(false);
         FreeConsole();
     }
+
+
+    if (StringFunctions::doesParameterExist(arguments, IGNORE_IGNORES)) {
+        loggerInstance.log("Ignoring " EXCLUDE_NAME " files.", LoggingTools::LVL_NORMAL);
+        doIgnoreExcludes = true;
+    }
+
 
     //log parameters
     loggerInstance.log("Starting BackThisUp...", LoggingTools::LVL_INFO);
@@ -45,6 +54,7 @@ int main(int argc, char **argv) {
     time_t startTime = time(nullptr);
     try {
         rf = Backup::RootFolder(src, dest);
+        rf.setIgnoreExcludes(doIgnoreExcludes);
         tBackup = thread(rf.backup, &rf, comp);
     }
     catch (const invalid_argument &ia) {
@@ -113,6 +123,8 @@ void displayHelp() {
     cout << COMP_DIR"COMPARE_PATH" << endl << "\t Specifies a folder that contains a previous full backup for backing up differentially. ";
     cout << "Leave empty to do a full backup." << endl;
     cout << HELP << endl << "\tYou know what this does." << endl;
+    cout << SILENT << "\tRun backup in silent mode. No console output will be given." << endl;
+    cout << IGNORE_IGNORES << "\tDon't use " EXCLUDE_NAME " files to select particular data that should not be backed up." << endl;
     cout << LOG_PATH"LOG_PATH" << endl << "\tSpecifies a file where the log should be written to. ";
     cout << "Leave empty to get no log file." << endl;
     cout << LOG_LVL << endl << "\tAppend any log level to control what the log file should contain. ";

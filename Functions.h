@@ -37,4 +37,5 @@ namespace TimeFunctions {
 
 namespace StringFunctions {
     std::string parseParameters(const std::vector<std::string> &parameters, const std::string &argPrefix);
+    bool doesParameterExist(const std::vector<std::string> &parameters, const std::string &argName);
 }

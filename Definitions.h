@@ -11,6 +11,8 @@
 #define LOG_PATH "-log="
 #define LOG_LVL "-logLevel="
 #define HELP "-help"
+#define SILENT "-silent"
+#define IGNORE_IGNORES "-ignore-excludes"
 #define LOG_LVL_ERR "error"
 #define LOG_LVL_INFO "info"
 #define LOG_LVL_NORM "default"

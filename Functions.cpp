@@ -129,4 +129,8 @@ namespace StringFunctions {
         auto tmp = std::find_if_not(parameters.begin(), parameters.end(), checkArgument);
         return (tmp != parameters.end()) ? tmp->substr(argPrefix.length(), string::npos) : "";
     }
+
+    bool doesParameterExist(const std::vector<string> &parameters, const string &argName) {
+        return std::find(std::begin(parameters), std::end(parameters), argName) != std::end(parameters);
+    }
 }

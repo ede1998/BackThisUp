@@ -18,6 +18,7 @@ namespace Backup {
         std::string getRelPath() const;
         unsigned int getFileCount() const;
         unsigned int getFileProcessedCount() const;
+        void setIgnoreExcludes(bool ignoreExcludes);
     protected:
         std::forward_list<File> m_files;
         std::forward_list<Folder> m_folders;
@@ -28,6 +29,7 @@ namespace Backup {
         Folder() = default;
         void backup(const std::string &rootSrc, const std::string &rootDest, const std::string &rootComp);
     private:
+        bool m_doNotIgnore = false;
         void load(const std::string &path, const std::string &rootPath);
         void create(const std::string &path);
         void addFile(File f);
