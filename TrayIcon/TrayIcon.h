@@ -6,8 +6,6 @@
 #pragma once
 
 #include <string>
-#include <threads/mingw.thread.h>
-#include <atomic>
 #include "resource.h"
 
 namespace TrayIcon {

@@ -4,7 +4,7 @@
 #include <algorithm>
 #include "Definitions.h"
 #include "TrayIcon/TrayIcon.h"
-#include "RootFolder.h"
+#include "Backup/RootFolder.h"
 
 void displayHelp();
 
