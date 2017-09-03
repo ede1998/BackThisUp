@@ -23,18 +23,26 @@ namespace {
         std::size_t end = text.find_last_not_of(" \t\r\n");
         if (beg > text.length())
             return "";
-        return text.substr(beg, end - beg +1);
+        return text.substr(beg, end - beg + 1);
     }
 }
 
 namespace WebTools {
+    JSONObject::JSONObject()
+            : m_invalidObject(true) {
+
+    }
+
     JSONObject::JSONObject(const std::string &text) :
             m_invalidObject{false} {
         parseJSON(text);
     }
 
     std::string JSONObject::getValue(const std::string &key) {
-        return m_elements.find(key)->second;
+        auto iter = m_elements.find(key);
+        if (iter == std::end(m_elements))
+            return "";
+        return iter->second;
     }
 
     bool JSONObject::hasKey(const std::string &key) {
@@ -43,7 +51,10 @@ namespace WebTools {
     }
 
     JSONObject JSONObject::getValueJSON(const std::string &key) {
-        return m_recursiveElements.find(key)->second;
+        auto iter = m_recursiveElements.find(key);
+        if (iter == std::end(m_recursiveElements))
+            return JSONObject();
+        return iter->second;
     }
 
     std::vector<std::string> split(const std::string &text, const char &delimiter) {

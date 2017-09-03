@@ -12,6 +12,7 @@ namespace WebTools {
     class JSONObject {
     public:
         explicit JSONObject(const std::string &text);
+        JSONObject();
         bool isValid();
 
         bool hasKey(const std::string &key);

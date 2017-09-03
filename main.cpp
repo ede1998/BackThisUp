@@ -101,16 +101,16 @@ void displayHelp() {
     cout << PROGRAM_NAME << endl;
     cout << SOURCE_DIR"SOURCE_PATH" << endl << "\tSpecifies from which folder data should be backed up." << endl;
     cout << DEST_DIR"DEST_PATH" << endl << "\tSpecifies the folder to backup to." << endl;
-    cout << COMP_DIR"COMPARE_PATH" << endl << "\t Specifies a folder that contains a previous full backup for backing up differentially. ";
-    cout << "Leave empty to do a full backup." << endl;
+    cout << COMP_DIR"COMPARE_PATH" << endl << "\t Specifies a folder that contains a previous full backup for backing up differentially." << endl;
+    cout << "\tLeave empty to do a full backup." << endl;
     cout << OFFSITE_DIR "OFFSITE_PATH" << endl << "\tIf given, the program will try to make an offsite backup to OneDrive." << endl;
     cout << "\tUse " PWD "PASSWORD to set a password for the uploaded backup archive." << endl;
     cout << HELP << endl << "\tYou know what this does." << endl;
-    cout << SILENT << "\tRun backup in silent mode. No console output will be given." << endl;
-    cout << IGNORE_IGNORES << "\tDon't use " EXCLUDE_NAME " files to select particular data that should not be backed up." << endl;
+    cout << SILENT << endl << "\tRun backup in silent mode. No console output will be given." << endl;
+    cout << IGNORE_IGNORES << endl << "\tDon't use " EXCLUDE_NAME " files to select particular data that should not be backed up." << endl;
     cout << LOG_PATH"LOG_PATH" << endl << "\tSpecifies a file where the log should be written to. ";
     cout << "Leave empty to get no log file." << endl;
-    cout << LOG_LVL << endl << "\tAppend any log level to control what the log file should contain. ";
+    cout << LOG_LVL LOG_LVL_ERR "," LOG_LVL_NORM "," LOG_LVL_INFO << endl << "\tAppend any log level to control what the log file should contain. ";
     cout << "Available log levels are: " LOG_LVL_ERR "," LOG_LVL_NORM "," LOG_LVL_INFO << endl;
     cout << "\tYou can use multiple log levels at once by separating them with a comma." << endl;
 }
@@ -179,8 +179,10 @@ bool doOffsiteBack(const std::string &localPath, const std::string &remotePath, 
     trayIcon.changeDescription(PROGRAM_NAME "\nUploading to OneDrive");
 
 
+    WebTools::initializeSockets();
     //upload file
     WebTools::OneDriveConnector odc;
+    WebTools::deinitializeSockets();
     if (!odc.isCorrectlyInitialized()) {
         loggerInstance.log("Could not connect to OneDrive.", LoggingTools::LVL_ERROR);
         return false;

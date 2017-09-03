@@ -126,6 +126,23 @@ namespace FilesystemFunctions {
             return false;
         return true;
     }
+
+    void processFileByChunk(const std::string &path, const unsigned int chunkSize, std::function<void (char *, const unsigned int)> processingFu) {
+        std::ifstream bigFile(path);
+        auto buffer = new char[chunkSize];
+        try {
+            while (bigFile) {
+                bigFile.read(buffer, chunkSize);
+                int tmp = bigFile.gcount();
+                processingFu(buffer, std::min(chunkSize, static_cast<const unsigned int>(tmp)));
+            }
+        } catch (...) {
+            delete buffer;
+            throw;
+        }
+        delete buffer;
+    }
+
 }
 
 namespace TimeFunctions {

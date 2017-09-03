@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <fstream>
 #include <map>
+#include <functional>
 
 namespace FilesystemFunctions {
     std::string findAbsolutePath(const std::string &AbsRoot, const std::string &relPath);
@@ -29,6 +30,8 @@ namespace FilesystemFunctions {
 
     std::string loadFileToString(const std::string &filePath);
     bool saveStringToFile(const std::string &filePath, const std::string &content);
+
+    void processFileByChunk(const std::string &path, unsigned int chunkSize, std::function<void (char *, const unsigned int)> processingFu);
 }
 
 namespace TimeFunctions {
