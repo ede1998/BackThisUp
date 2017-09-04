@@ -15,6 +15,7 @@
 #include "../Functions.h"
 #include "../Definitions.h"
 #include "sha1/sha1.hpp"
+#include "curl/CurlController.h"
 
 namespace {
     void OpenWebsite(const std::string &cpURL) {
@@ -29,6 +30,14 @@ namespace {
     constexpr char UploadCancelString[] = R"(~curl~ "~url~" -X DELETE -k)";
     constexpr char UploadFileStringParts[] = R"(~curl~ "~url~" -X PUT -H "Content-Length: ~block_length~" -H "Content-Range: bytes ~begin_range~-~end_range~/~total_length~" -v -k --data-binary ~data~)";
     constexpr char UploadSmallFileString[] = R"(~curl~ "https://graph.microsoft.com/v1.0/me/drive/root:/~remote_path~:/content" -X PUT -H "Content-Type: plain/text" -H "Authorization: Bearer ~access_token~" -T "~path~" -k)";
+
+    constexpr char URLToken[] = R"(https://login.microsoftonline.com/common/oauth2/v2.0/token)";
+    constexpr char URLUpload[] = R"(https://graph.microsoft.com/v1.0/me/drive/root:/~remote_path~:/createUploadSession)";
+    constexpr char TokenRefreshData[] = R"(client_id=~client_id~&redirect_uri=~redirect_uri~&client_secret=~client_secret~&refresh_token=~refresh_token~&grant_type=refresh_token)";
+    constexpr char TokenRequestData[] = R"(client_id=~client_id~&redirect_uri=~redirect_uri~&client_secret=~client_secret~&code=~code~&grant_type=authorization_code)";
+    constexpr char Token[] = R"(Authorization: Bearer ~access_token~)";
+    constexpr char ContentRange[] = R"(Content-Range: bytes ~begin_range~-~end_range~/~total_length~)";
+    constexpr char ContentLength[] = R"(Content-Length: ~length~)";
 
     constexpr char RedirectURI[] = "http://localhost";
     constexpr char DefaultHeader[] = "HTTP/1.1 200 OK\r\nExpires: -1\r\nContent-Type: text/html; charset=ISO-8859-1\r\n\r\n";
@@ -55,16 +64,16 @@ namespace WebTools {
         if (!m_isInitialized)
             return false;
         std::string answer;
-//#define SMALL_FILES
-#ifdef SMALL_FILES
-        answer = exec(StringFunctions::combineString(UploadSmallFileString, {{"~curl~",         CURL_PATH},
-                                                      {"~access_token~", m_token},
-                                                      {"~remote_path~",  remoteFile},
-                                                      {"~path~",         localFile}}).c_str());
-#else
-        answer = exec(StringFunctions::combineString(CreateUploadString, {{"~curl~", CURL_PATH},
-                                                                          {"~remote_path~",  remoteFile},
-                                                                          {"~access_token~", m_token}}).c_str());
+
+            Curl::CurlController cc(StringFunctions::combineString(URLUpload, {{"~remote_path~", remoteFile}}));
+            if (!cc.getInitStatus())
+                return false;
+            cc.addHeader(StringFunctions::combineString(Token, {{"~access_token~", m_token}}));
+            if (!cc.performPOST()) {
+                return false;
+            }
+            answer = cc.getLastAnswer();
+
         JSONObject parsedAnswer(answer);
         const std::string uploadURL = parsedAnswer.getValue("uploadUrl");
 
@@ -75,32 +84,30 @@ namespace WebTools {
         if (fileSize == 0)
             return false;
 
-        int part = 0;
+        int totalSent = 0;
+        cc = Curl::CurlController(uploadURL);
+        if (!cc.getInitStatus())
+            return false;
+
 
         std::function<void(char *, const unsigned int)> lambda = [&](char *buf, const unsigned int chunkSize) -> void {
-            std::string data;
-            data.assign(buf, chunkSize);
-            answer = exec(StringFunctions::combineString(UploadFileStringParts, {{"~curl~", CURL_PATH},
-                                                                                 {"~url~",          uploadURL},
-                                                                                 {"~block_length~", std::to_string(chunkSize)},
-                                                                                 {"~total_length~", std::to_string(fileSize)},
-                                                                                 {"~begin_range~",  std::to_string(part * chunkSize)},
-                                                                                 {"~end_range~",    std::to_string(((part + 1) * chunkSize - 1))},
-                                                                                 {"~data~",         data}}).c_str());
-            parsedAnswer = JSONObject(answer);
+            cc.addHeader(StringFunctions::combineString(ContentRange, {{"~begin_range~",  std::to_string(totalSent)},
+                                                                       {"~end_range~",    std::to_string((totalSent + chunkSize - 1))},
+                                                                       {"~total_length~", std::to_string(fileSize)}}));
+            cc.addHeader(StringFunctions::combineString(ContentLength, {{"~length~", std::to_string(chunkSize)}}));
+
+            totalSent += chunkSize;
+            if (!cc.performUpload(Curl::membuf(buf, buf + chunkSize)))
+                return;
+            answer = cc.getLastAnswer();
             std::cout << answer << std::endl;
         };
 
-        FilesystemFunctions::processFileByChunk(localFile, 1024 * 1024 * 512, lambda);
-      /*      answer = exec(StringFunctions::combineString(UploadFileString, {{"~curl~",         CURL_PATH},
-                                                                            {"~url~",          uploadURL},
-                                                                            {"~block_length~", std::to_string(fileSize)},
-                                                                            {"~total_length~", std::to_string(fileSize)},
-                                                                            {"~begin_range~",  "0"},
-                                                                            {"~end_range~",    std::to_string(fileSize - 1)},
-                                                                            {"~path~",         localFile}}).c_str());*/
-            parsedAnswer = JSONObject(answer);
-            std::cout <<answer<<std::endl;
+        FilesystemFunctions::processFileByChunk(localFile, 1024 * 1024 * 32, lambda);
+        answer = cc.getLastAnswer();
+
+        parsedAnswer = JSONObject(answer);
+        // std::cout << answer << std::endl;
 
         //TODO: check return for sh1 hash, compare, check size, filename,...?
         bool successful = parsedAnswer.getValue("name") == remoteFile;
@@ -108,9 +115,12 @@ namespace WebTools {
         successful = successful && parsedAnswer.getValueJSON("hashes").getValue("sha1") == SHA1::from_file(localFile);
 
         //TODO: close handle if no success
+        if (!successful) {
+            cc = Curl::CurlController(uploadURL);
+            cc.performDELETE();
+        }
+
         return successful;
-#endif
-        return true;
     }
 
     std::string OneDriveConnector::requestCode() {
@@ -151,11 +161,15 @@ namespace WebTools {
 
     bool OneDriveConnector::requestTokens(const std::string &code) {
         //make token request and parse request result
-        std::string answer = exec(StringFunctions::combineString(RequestTokenString, {{"~curl~", CURL_PATH},
-                                                                                      {"~redirect_uri~",  RedirectURI},
-                                                                                      {"~client_id~",     client_id},
-                                                                                      {"~client_secret~", client_secret},
-                                                                                      {"~code~",          code}}).c_str());
+        Curl::CurlController cc(URLToken);
+        if (!cc.getInitStatus())
+            return false;
+        if (!cc.performPOST(StringFunctions::combineString(TokenRequestData, {{"~redirect_uri~",  RedirectURI},
+                                                                              {"~client_id~",     client_id},
+                                                                              {"~client_secret~", client_secret}}))) {
+            return false;
+        }
+        std::string answer = cc.getLastAnswer();
         JSONObject parsedAnswer(answer);
 
         //extract access token
@@ -177,11 +191,16 @@ namespace WebTools {
 
     bool OneDriveConnector::refreshToken() {
         //request new token and parse result
-        std::string answer = exec(StringFunctions::combineString(RefreshTokenString, {{"~curl~", CURL_PATH},
-                                                                                      {"~redirect_uri~",  RedirectURI},
-                                                                                      {"~client_id~",     client_id},
-                                                                                      {"~client_secret~", client_secret},
-                                                                                      {"~refresh_token~", m_refreshToken}}).c_str());
+        Curl::CurlController cc(URLToken);
+        if (!cc.getInitStatus())
+            return false;
+        if (!cc.performPOST(StringFunctions::combineString(TokenRefreshData, {{"~redirect_uri~",  RedirectURI},
+                                                                              {"~client_id~",     client_id},
+                                                                              {"~client_secret~", client_secret},
+                                                                              {"~refresh_token~", m_refreshToken}}))) {
+            return false;
+        }
+        std::string answer = cc.getLastAnswer();
         JSONObject parsedAnswer(answer);
 
         //extract refresh token

@@ -128,7 +128,7 @@ namespace FilesystemFunctions {
     }
 
     void processFileByChunk(const std::string &path, const unsigned int chunkSize, std::function<void (char *, const unsigned int)> processingFu) {
-        std::ifstream bigFile(path);
+        std::ifstream bigFile(path, std::ios::binary);
         auto buffer = new char[chunkSize];
         try {
             while (bigFile) {
