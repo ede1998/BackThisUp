@@ -84,6 +84,10 @@ namespace WebTools {
         if (fileSize == 0)
             return false;
 
+        std::string sha1 = SHA1::from_file(localFile);
+        std::transform(std::begin(sha1), std::end(sha1), std::begin(sha1), toupper);
+
+
         int totalSent = 0;
         cc = Curl::CurlController(uploadURL);
         if (!cc.getInitStatus())
@@ -97,24 +101,22 @@ namespace WebTools {
             cc.addHeader(StringFunctions::combineString(ContentLength, {{"~length~", std::to_string(chunkSize)}}));
 
             totalSent += chunkSize;
-            if (!cc.performUpload(Curl::membuf(buf, buf + chunkSize)))
+            if (!cc.performUpload(Curl::membuf(buf, buf + chunkSize), fileSize))
                 return;
-            answer = cc.getLastAnswer();
-            std::cout << answer << std::endl;
+            //answer = cc.getLastAnswer(); //TODO: maybe process answer
         };
 
         FilesystemFunctions::processFileByChunk(localFile, 1024 * 1024 * 32, lambda);
         answer = cc.getLastAnswer();
 
         parsedAnswer = JSONObject(answer);
-        // std::cout << answer << std::endl;
 
-        //TODO: check return for sh1 hash, compare, check size, filename,...?
+
         bool successful = parsedAnswer.getValue("name") == remoteFile;
         successful = successful && parsedAnswer.getValue("size") == std::to_string(fileSize);
-        successful = successful && parsedAnswer.getValueJSON("hashes").getValue("sha1") == SHA1::from_file(localFile);
+        successful = successful && parsedAnswer.getValueJSON("file").getValueJSON("hashes").getValue("sha1Hash") == sha1;
 
-        //TODO: close handle if no success
+
         if (!successful) {
             cc = Curl::CurlController(uploadURL);
             cc.performDELETE();

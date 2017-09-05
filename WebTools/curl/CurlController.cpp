@@ -45,7 +45,6 @@ namespace Curl {
             return;
         curl_easy_setopt(m_handle, CURLOPT_URL, URL.c_str());
         curl_easy_setopt(m_handle, CURLOPT_WRITEFUNCTION, write_callback);
-        curl_easy_setopt(m_handle, CURLOPT_WRITEDATA, &m_answer);
         m_header.emplace_back("Expect:");
 #ifdef DEBUG
         curl_easy_setopt(m_handle, CURLOPT_VERBOSE, 1L);
@@ -57,10 +56,10 @@ namespace Curl {
             curl_easy_cleanup(m_handle);
     }
 
-    bool CurlController::performUpload(membuf buf) {
+    bool CurlController::performUpload(membuf buf, const long long int fileSize) {
         curl_easy_setopt(m_handle, CURLOPT_UPLOAD, 1L);
         curl_easy_setopt(m_handle, CURLOPT_READFUNCTION, read_callback_file);
-        //curl_easy_setopt(m_handle, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(getFileSize(f)));
+        curl_easy_setopt(m_handle, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(fileSize));
         curl_easy_setopt(m_handle, CURLOPT_READDATA, &buf);
         return perform();
     }
@@ -68,7 +67,9 @@ namespace Curl {
     bool CurlController::perform() {
         if (!m_init)
             return false;
-        m_answer = "";
+
+        m_answer.clear();
+        curl_easy_setopt(m_handle, CURLOPT_WRITEDATA, &m_answer);
 
         curl_slist *header = nullptr;
         for (const auto &hLine: m_header) {

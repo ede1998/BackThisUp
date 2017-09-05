@@ -17,7 +17,7 @@ namespace Curl {
         CurlController(const CurlController &cc) = delete;
         CurlController & operator=(const CurlController &cc);
         ~CurlController();
-        bool performUpload(membuf buf);
+        bool performUpload(membuf buf, long long int fileSize);
         bool performPOST(const std::string &data = "");
         bool performDELETE();
         bool performGET();
