@@ -23,14 +23,6 @@ namespace {
     }
 
     constexpr char RequestCodeString[] = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=~client_id~&scope=~scopes~&response_type=code&redirect_uri=~redirect_uri~";
-    constexpr char RequestTokenString[] = R"(~curl~ "https://login.microsoftonline.com/common/oauth2/v2.0/token" -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=~client_id~&redirect_uri=~redirect_uri~&client_secret=~client_secret~&code=~code~&grant_type=authorization_code" -k)";
-    constexpr char RefreshTokenString[] = R"(~curl~ "https://login.microsoftonline.com/common/oauth2/v2.0/token" -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=~client_id~&redirect_uri=~redirect_uri~&client_secret=~client_secret~&refresh_token=~refresh_token~&grant_type=refresh_token" -k)";
-    constexpr char CreateUploadString[] = R"(~curl~ "https://graph.microsoft.com/v1.0/me/drive/root:/~remote_path~:/createUploadSession" -X POST -H "Authorization: Bearer ~access_token~" -H "Content-Length: 0" -k)";
-    constexpr char UploadFileString[] = R"(~curl~ "~url~" -X PUT -H "Content-Length: ~block_length~" -H "Content-Range: bytes ~begin_range~-~end_range~/~total_length~" -T "~path~" -k -v)";
-    constexpr char UploadCancelString[] = R"(~curl~ "~url~" -X DELETE -k)";
-    constexpr char UploadFileStringParts[] = R"(~curl~ "~url~" -X PUT -H "Content-Length: ~block_length~" -H "Content-Range: bytes ~begin_range~-~end_range~/~total_length~" -v -k --data-binary ~data~)";
-    constexpr char UploadSmallFileString[] = R"(~curl~ "https://graph.microsoft.com/v1.0/me/drive/root:/~remote_path~:/content" -X PUT -H "Content-Type: plain/text" -H "Authorization: Bearer ~access_token~" -T "~path~" -k)";
-
     constexpr char URLToken[] = R"(https://login.microsoftonline.com/common/oauth2/v2.0/token)";
     constexpr char URLUpload[] = R"(https://graph.microsoft.com/v1.0/me/drive/root:/~remote_path~:/createUploadSession)";
     constexpr char TokenRefreshData[] = R"(client_id=~client_id~&redirect_uri=~redirect_uri~&client_secret=~client_secret~&refresh_token=~refresh_token~&grant_type=refresh_token)";
@@ -47,7 +39,9 @@ namespace WebTools {
     OneDriveConnector::OneDriveConnector()
             : m_refreshToken(FilesystemFunctions::loadFileToString(REFRESH_TOKEN_PATH)),
               m_token(""),
-              m_isInitialized(false) {
+              m_isInitialized(false),
+              m_fileSize(0),
+              m_progress(0) {
         if (!m_refreshToken.empty())
             m_isInitialized = refreshToken();
         else {
@@ -65,14 +59,14 @@ namespace WebTools {
             return false;
         std::string answer;
 
-            Curl::CurlController cc(StringFunctions::combineString(URLUpload, {{"~remote_path~", remoteFile}}));
-            if (!cc.getInitStatus())
-                return false;
-            cc.addHeader(StringFunctions::combineString(Token, {{"~access_token~", m_token}}));
-            if (!cc.performPOST()) {
-                return false;
-            }
-            answer = cc.getLastAnswer();
+        Curl::CurlController cc(StringFunctions::combineString(URLUpload, {{"~remote_path~", remoteFile}}));
+        if (!cc.getInitStatus())
+            return false;
+        cc.addHeader(StringFunctions::combineString(Token, {{"~access_token~", m_token}}));
+        if (!cc.performPOST()) {
+            return false;
+        }
+        answer = cc.getLastAnswer();
 
         JSONObject parsedAnswer(answer);
         const std::string uploadURL = parsedAnswer.getValue("uploadUrl");
@@ -80,8 +74,8 @@ namespace WebTools {
         if (uploadURL.empty())
             return false;
 
-        const long long int fileSize = FilesystemFunctions::getFileSize(localFile);
-        if (fileSize == 0)
+        m_fileSize = FilesystemFunctions::getFileSize(localFile);
+        if (m_fileSize == 0)
             return false;
 
         std::string sha1 = SHA1::from_file(localFile);
@@ -97,11 +91,12 @@ namespace WebTools {
         std::function<void(char *, const unsigned int)> lambda = [&](char *buf, const unsigned int chunkSize) -> void {
             cc.addHeader(StringFunctions::combineString(ContentRange, {{"~begin_range~",  std::to_string(totalSent)},
                                                                        {"~end_range~",    std::to_string((totalSent + chunkSize - 1))},
-                                                                       {"~total_length~", std::to_string(fileSize)}}));
+                                                                       {"~total_length~", std::to_string(m_fileSize)}}));
             cc.addHeader(StringFunctions::combineString(ContentLength, {{"~length~", std::to_string(chunkSize)}}));
 
             totalSent += chunkSize;
-            if (!cc.performUpload(Curl::membuf(buf, buf + chunkSize), fileSize))
+            m_progress = totalSent;
+            if (!cc.performUpload(Curl::membuf(buf, buf + chunkSize), m_fileSize))
                 return;
             //answer = cc.getLastAnswer(); //TODO: maybe process answer
         };
@@ -113,7 +108,7 @@ namespace WebTools {
 
 
         bool successful = parsedAnswer.getValue("name") == remoteFile;
-        successful = successful && parsedAnswer.getValue("size") == std::to_string(fileSize);
+        successful = successful && parsedAnswer.getValue("size") == std::to_string(m_fileSize);
         successful = successful && parsedAnswer.getValueJSON("file").getValueJSON("hashes").getValue("sha1Hash") == sha1;
 
 
@@ -220,5 +215,13 @@ namespace WebTools {
 
     bool OneDriveConnector::isCorrectlyInitialized() {
         return m_isInitialized;
+    }
+
+    long long int OneDriveConnector::getProgress() {
+        return m_progress;
+    }
+
+    long long int OneDriveConnector::getFileSize() {
+        return m_fileSize;
     }
 }

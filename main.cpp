@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 
     TimeFunctions::time passedTime = TimeFunctions::secondsToTime(difftime(time(nullptr), startTime));
 
-    if (!offsite.empty()){
+    if (!offsite.empty()) {
         if (doOffsiteBack(dest, offsite, pwd))
             loggerInstance.log("Offsite backup successful.", LoggingTools::LVL_INFO);
         else
@@ -165,7 +165,9 @@ bool doOffsiteBack(const std::string &localPath, const std::string &remotePath, 
 
     //Creating file to upload
     constexpr char createArchiveString[] = "~7zip~ a ~name~.7z ~src~ -mhe -mx9";
-    std::string command = StringFunctions::combineString(createArchiveString, {{"~7zip~", ZIP_PATH},{"~name~", remotePath},{"~src~", localPath}});
+    std::string command = StringFunctions::combineString(createArchiveString, {{"~7zip~", ZIP_PATH},
+                                                                               {"~name~", remotePath},
+                                                                               {"~src~",  localPath}});
     if (!pwd.empty())
         command += " -p" + pwd;
     std::string res = exec(command.c_str());
@@ -188,8 +190,13 @@ bool doOffsiteBack(const std::string &localPath, const std::string &remotePath, 
         return false;
     }
     bool successfullyUploaded;
-    std::thread tUpload([&successfullyUploaded, &odc, &remotePath](){successfullyUploaded = odc.upload(remotePath + ".7z", remotePath);});
-    //TODO: update Icon with upload progress
+    std::thread tUpload([&successfullyUploaded, &odc, &remotePath]() { successfullyUploaded = odc.upload(remotePath + ".7z", remotePath); });
+    long long int lastProgress = -1;
+    while (odc.getProgress() != odc.getFileSize())
+        if (odc.getProgress() != lastProgress) {
+            lastProgress = odc.getProgress();
+            trayIcon.changeDescription(PROGRAM_NAME "\nFortschritt: " + std::to_string(lastProgress) + "/" + std::to_string(odc.getFileSize()));
+        }
     tUpload.join();
     if (successfullyUploaded)
         loggerInstance.log("Successfully uploaded backup.", LoggingTools::LVL_INFO);
