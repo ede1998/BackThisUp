@@ -7,9 +7,9 @@
 
 #include <forward_list>
 #include <string>
-#include "Functions.h"
+#include "../Functions.h"
 #include "File.h"
-#include "Definitions.h"
+#include "../Definitions.h"
 
 namespace Backup {
     class Folder {
@@ -20,8 +20,8 @@ namespace Backup {
         unsigned int getFileProcessedCount() const;
         void setIgnoreExcludes(bool ignoreExcludes);
     protected:
-        std::forward_list<File> m_files;
-        std::forward_list<Folder> m_folders;
+        std::forward_list<File> m_files{};
+        std::forward_list<Folder> m_folders{};
         std::string m_relPath;
 
         unsigned int m_filesProcessed{0};

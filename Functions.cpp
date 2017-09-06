@@ -1,4 +1,5 @@
 
+#include <memory>
 #include "Functions.h"
 
 using std::deque;
@@ -90,6 +91,58 @@ namespace FilesystemFunctions {
             return false;
         return PathFileExists(path.c_str()) == TRUE;
     }
+
+    std::ifstream::pos_type getFileSize(std::ifstream &f) {
+        std::ifstream::pos_type size = f.seekg(0, std::ifstream::end).tellg();
+        f.seekg(0, std::ifstream::beg);
+        return size;
+    }
+
+    std::ifstream::pos_type getFileSize(const std::string &path) {
+        std::ifstream f(path);
+        if (!f.is_open())
+            return 0;
+        auto size = getFileSize(f);
+        f.close();
+        return size;
+    }
+
+    std::string loadFileToString(const std::string &filePath) {
+        std::string res;
+        std::ifstream inp(filePath);
+        if (inp.is_open()) {
+            res.assign((std::istreambuf_iterator<char>(inp)), (std::istreambuf_iterator<char>()));
+            inp.close();
+        }
+        return res;
+    }
+
+    bool saveStringToFile(const std::string &filePath, const std::string &content) {
+        std::ofstream out(filePath);
+        if (out.is_open()) {
+            out << content;
+            out.close();
+        } else
+            return false;
+        return true;
+    }
+
+    void processFileByChunk(const std::string &path, const unsigned int chunkSize, std::function<void (char *, const unsigned int)> processingFu) {
+        std::ifstream bigFile(path, std::ios::binary);
+        auto buffer = new char[chunkSize];
+        try {
+            while (bigFile) {
+                bigFile.read(buffer, chunkSize);
+                int tmp = bigFile.gcount();
+                processingFu(buffer, std::min(chunkSize, static_cast<const unsigned int>(tmp)));
+            }
+        } catch (...) {
+            delete buffer;
+            throw;
+        }
+        delete buffer;
+    }
+
 }
 
 namespace TimeFunctions {
@@ -133,4 +186,31 @@ namespace StringFunctions {
     bool doesParameterExist(const std::vector<string> &parameters, const string &argName) {
         return std::find(std::begin(parameters), std::end(parameters), argName) != std::end(parameters);
     }
+
+    std::string combineString(std::string inputStr, const std::map<std::string, std::string> &args) {
+        size_t pos;
+        for (const auto &arg: args) {
+            pos = 0;
+            while (pos < inputStr.length()) {
+                pos = inputStr.find(arg.first, pos);
+                if (pos >= inputStr.length())
+                    break;
+                inputStr.replace(pos, arg.first.length(), arg.second);
+                pos += arg.first.length();
+            }
+        }
+        return inputStr;
+    }
+}
+
+std::string exec(const char *cmd) {
+    std::array<char, 128> buffer{};
+    std::string result;
+    std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) throw std::runtime_error("popen() failed!");
+    while (feof(pipe.get()) == 0) {
+        if (fgets(buffer.data(), 128, pipe.get()) != nullptr)
+            result += buffer.data();
+    }
+    return result;
 }

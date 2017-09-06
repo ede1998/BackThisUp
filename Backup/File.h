@@ -11,8 +11,8 @@
 #include <cstring>
 #include <algorithm>
 #include <iterator>
-#include "Functions.h"
-#include "Logger.h"
+#include "../Functions.h"
+#include "../LoggingTools/Logger.h"
 
 namespace Backup {
     class File {

@@ -12,7 +12,7 @@
 #include <fstream>
 #include <set>
 #include <ctime>
-#include "Functions.h"
+#include "../Functions.h"
 
 namespace LoggingTools {
     enum ELevel {

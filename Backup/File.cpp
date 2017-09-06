@@ -5,13 +5,6 @@
 
 #include "File.h"
 
-namespace {
-    std::ifstream::pos_type getFileSize(std::ifstream &f) {
-        std::ifstream::pos_type size = f.seekg(0, std::ifstream::end).tellg();
-        f.seekg(0, std::ifstream::beg);
-        return size;
-    }
-}
 namespace Backup {
     File::File(const std::string &relPath)
             : m_relPath(relPath)
@@ -33,7 +26,7 @@ namespace Backup {
 
         if (!in1.is_open() || !in2.is_open())
             return false;
-        ifstream::pos_type size1 = getFileSize(in1), size2 = getFileSize(in2);
+        ifstream::pos_type size1 = FilesystemFunctions::getFileSize(in1), size2 = FilesystemFunctions::getFileSize(in2);
 
         if (size1 != size2)
             return false;
