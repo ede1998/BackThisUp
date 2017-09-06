@@ -36,19 +36,16 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-
     if (StringFunctions::doesParameterExist(arguments, SILENT)) {
         loggerInstance.log("Running in silent mode. No console output will be given.", LoggingTools::LVL_INFO);
         loggerInstance.logToConsole(false);
         FreeConsole();
     }
 
-
     if (StringFunctions::doesParameterExist(arguments, IGNORE_IGNORES)) {
         loggerInstance.log("Ignoring " EXCLUDE_NAME " files.", LoggingTools::LVL_NORMAL);
         doIgnoreExcludes = true;
     }
-
 
     //log parameters
     loggerInstance.log("Starting " PROGRAM_NAME "...", LoggingTools::LVL_INFO);
@@ -162,7 +159,6 @@ bool doOffsiteBack(const std::string &localPath, const std::string &remotePath, 
     LoggingTools::Logger &loggerInstance = LoggingTools::Logger::getInstance();
 
     trayIcon.changeDescription(PROGRAM_NAME "\nCreating backup archive.");
-
     //Creating file to upload
     constexpr char createArchiveString[] = "~7zip~ a ~name~.7z ~src~ -mhe -mx9";
     std::string command = StringFunctions::combineString(createArchiveString, {{"~7zip~", ZIP_PATH},

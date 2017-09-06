@@ -6,7 +6,7 @@
 #pragma once
 
 #include <string>
-#include "resource.h"
+#include <windows.h>
 
 namespace TrayIcon {
     class TrayIcon {

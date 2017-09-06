@@ -4,12 +4,13 @@
 
 #include "TrayIcon.h"
 
+#define ID_TRAY_APP_ICON 1001
+
 namespace TrayIcon {
     int TrayIcon::m_uniqueID = 0;
 
     TrayIcon::TrayIcon(const std::string &txt)
-            : m_initFail(true)
-    {
+            : m_initFail(true) {
         m_className = "UniqueString1234" + std::to_string(TrayIcon::m_uniqueID++);
         m_Hwnd = CreateDummyWindow(GetModuleHandle(nullptr), m_className.c_str());
         if (m_Hwnd == nullptr)
@@ -73,7 +74,16 @@ namespace TrayIcon {
         m_notifyIconData.uID = ID_TRAY_APP_ICON;
         m_notifyIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
         m_notifyIconData.uCallbackMessage = 0;
-        m_notifyIconData.hIcon = (HICON) LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(ICO1));
+        m_notifyIconData.hIcon = (HICON) LoadImage( // returns a HANDLE so we have to cast to HICON
+                nullptr,             // hInstance must be NULL when loading from a file
+                "icon.ico",   // the icon file name
+                IMAGE_ICON,       // specifies that the file is an icon
+                16,                // width of the image (we'll specify default later on)
+                16,                // height of the image
+                LR_LOADFROMFILE |  // we want to load a file (as opposed to a resource)
+                LR_LOADTRANSPARENT |   // default metrics based on the type (IMAGE_ICON, 32x32)
+                LR_SHARED         // let the system release the handle when it's no longer used
+        );
         strncpy(m_notifyIconData.szTip, txt.c_str(), (unsigned int) std::max(64, (int) txt.length()));
     }
 
