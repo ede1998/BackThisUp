@@ -30,6 +30,7 @@ namespace {
     constexpr char Token[] = R"(Authorization: Bearer ~access_token~)";
     constexpr char ContentRange[] = R"(Content-Range: bytes ~begin_range~-~end_range~/~total_length~)";
     constexpr char ContentLength[] = R"(Content-Length: ~length~)";
+    constexpr char Scope[] = R"(files.readwrite+offline_access)";
 
     constexpr char RedirectURI[] = "http://localhost";
     constexpr char DefaultHeader[] = "HTTP/1.1 200 OK\r\nExpires: -1\r\nContent-Type: text/html; charset=ISO-8859-1\r\n\r\n";
@@ -47,14 +48,13 @@ namespace WebTools {
         else {
             std::string code = requestCode();
             if (!code.empty())
-                if (requestTokens(code)) {
+                if (requestTokens(code))
                     m_isInitialized = true;
-                }
         }
         FilesystemFunctions::saveStringToFile(REFRESH_TOKEN_PATH, m_refreshToken);
     }
 
-    bool OneDriveConnector::upload(const std::string &localFile, const std::string &remoteFile) {
+    bool OneDriveConnector::requestUploadURL(const std::string &remoteFile, std::string &uploadURL) {
         if (!m_isInitialized)
             return false;
         std::string answer;
@@ -69,31 +69,32 @@ namespace WebTools {
         answer = cc.getLastAnswer();
 
         JSONObject parsedAnswer(answer);
-        const std::string uploadURL = parsedAnswer.getValue("uploadUrl");
+        uploadURL = parsedAnswer.getValue("uploadUrl");
 
-        if (uploadURL.empty())
+        return !uploadURL.empty();
+    }
+
+    bool OneDriveConnector::upload(const std::string &localFile, const std::string &remoteFile) {
+        std::string uploadURL, sha1 = SHA1::from_file(localFile);
+        std::transform(std::begin(sha1), std::end(sha1), std::begin(sha1), toupper);
+
+        if (!requestUploadURL(remoteFile, uploadURL))
             return false;
 
         m_fileSize = FilesystemFunctions::getFileSize(localFile);
         if (m_fileSize == 0)
             return false;
 
-        std::string sha1 = SHA1::from_file(localFile);
-        std::transform(std::begin(sha1), std::end(sha1), std::begin(sha1), toupper);
-
-
-        int totalSent = 0;
-        cc = Curl::CurlController(uploadURL);
+        Curl::CurlController cc(uploadURL);
         if (!cc.getInitStatus())
             return false;
 
-
+        int totalSent = 0;
         std::function<void(char *, const unsigned int)> lambda = [&](char *buf, const unsigned int chunkSize) -> void {
             cc.addHeader(StringFunctions::combineString(ContentRange, {{"~begin_range~",  std::to_string(totalSent)},
                                                                        {"~end_range~",    std::to_string((totalSent + chunkSize - 1))},
                                                                        {"~total_length~", std::to_string(m_fileSize)}}));
             cc.addHeader(StringFunctions::combineString(ContentLength, {{"~length~", std::to_string(chunkSize)}}));
-
             totalSent += chunkSize;
             m_progress = totalSent;
             if (!cc.performUpload(Curl::membuf(buf, buf + chunkSize), m_fileSize))
@@ -101,22 +102,18 @@ namespace WebTools {
             //answer = cc.getLastAnswer(); //TODO: maybe process answer
         };
 
-        FilesystemFunctions::processFileByChunk(localFile, 1024 * 1024 * 32, lambda);
-        answer = cc.getLastAnswer();
-
-        parsedAnswer = JSONObject(answer);
-
+        FilesystemFunctions::processFileByChunk(localFile, 1024 * 320 * 32, lambda);
+        std::string answer = cc.getLastAnswer();
+        JSONObject parsedAnswer = JSONObject(answer);
 
         bool successful = parsedAnswer.getValue("name") == remoteFile;
         successful = successful && parsedAnswer.getValue("size") == std::to_string(m_fileSize);
         successful = successful && parsedAnswer.getValueJSON("file").getValueJSON("hashes").getValue("sha1Hash") == sha1;
 
-
         if (!successful) {
             cc = Curl::CurlController(uploadURL);
             cc.performDELETE();
         }
-
         return successful;
     }
 
@@ -124,15 +121,12 @@ namespace WebTools {
         const WebTools::buffer answer = WebTools::stringToBuffer(std::string(DefaultHeader) + FilesystemFunctions::loadFileToString(ANSWER_PAGE_PATH));
         const std::string requestString = StringFunctions::combineString(RequestCodeString, {{"~redirect_uri~", RedirectURI},
                                                                                              {"~client_id~",    client_id},
-                                                                                             {"~scopes~",       "files.readwrite+offline_access"}});
+                                                                                             {"~scopes~",       Scope}});
         WebTools::buffer recvData;
-
-        {
-            //initialize socket to receive code
+        { //initialize socket to receive code
             WebTools::ServerSocket ss;
             ss.bind(DEFAULT_PORT);
             ss.listen();
-
             //get code and serve page
             OpenWebsite(requestString);
             ss.waitForConnections();
@@ -146,12 +140,11 @@ namespace WebTools {
         std::vector<std::string> header((std::istream_iterator<std::string>(tmp)),
                                         std::istream_iterator<std::string>());
 
-        //check if HTTP header with code in URL
+        //check if HTTP header has code in URL
         if (header[0] != "GET")
             return "";
         if (header[1].find("/?code=") != 0)
             return "";
-
         return header[1].substr(7, std::string::npos);
 
     }
@@ -161,29 +154,22 @@ namespace WebTools {
         Curl::CurlController cc(URLToken);
         if (!cc.getInitStatus())
             return false;
+
         if (!cc.performPOST(StringFunctions::combineString(TokenRequestData, {{"~redirect_uri~",  RedirectURI},
                                                                               {"~client_id~",     client_id},
-                                                                              {"~client_secret~", client_secret}}))) {
+                                                                              {"~client_secret~", client_secret},
+                                                                              {"~code~", code}}))) {
             return false;
         }
         std::string answer = cc.getLastAnswer();
         JSONObject parsedAnswer(answer);
 
-        //extract access token
-        std::string value = parsedAnswer.getValue("access_token");
-        if (!value.empty())
-            m_token = value;
-        else
+        m_token = parsedAnswer.getValue("access_token");
+        if (m_token.empty())
             return false;
 
-        //extract refresh token
-        value = parsedAnswer.getValue("refresh_token");
-        if (!value.empty())
-            m_refreshToken = value;
-        else
-            return false;
-
-        return true;
+        m_refreshToken = parsedAnswer.getValue("refresh_token");
+        return !m_refreshToken.empty();
     }
 
     bool OneDriveConnector::refreshToken() {
@@ -201,16 +187,14 @@ namespace WebTools {
         JSONObject parsedAnswer(answer);
 
         //extract refresh token
-        std::string value = parsedAnswer.getValue("refresh_token");
-        if (!value.empty())
-            m_refreshToken = value;
+        m_refreshToken = parsedAnswer.getValue("refresh_token");
+        if (m_refreshToken.empty())
+            return false;
 
         //extract access token
-        value = parsedAnswer.getValue("access_token");
-        if (!value.empty())
-            m_token = value;
+        m_token = parsedAnswer.getValue("access_token");
 
-        return !value.empty();
+        return !m_token.empty();
     }
 
     bool OneDriveConnector::isCorrectlyInitialized() {

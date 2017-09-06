@@ -2,7 +2,6 @@
 // Created by Erik on 31.08.2017.
 //
 
-#define DEBUG
 #pragma once
 
 #include "curllib/curl.h"

@@ -26,6 +26,7 @@ namespace WebTools {
         std::string requestCode();
         bool requestTokens(const std::string &code);
         bool refreshToken();
+        bool requestUploadURL(const std::string &remoteFile, std::string &uploadURL);
     };
 }
 

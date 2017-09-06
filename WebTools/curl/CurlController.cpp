@@ -30,12 +30,6 @@ namespace {
         *data += cdata;
         return std::strlen(cdata);
     }
-
-    std::ifstream::pos_type getFileSize(std::ifstream &f) {
-        std::ifstream::pos_type size = f.seekg(0, std::ifstream::end).tellg();
-        f.seekg(0, std::ifstream::beg);
-        return size;
-    }
 }
 
 namespace WebTools {
@@ -82,9 +76,7 @@ namespace WebTools {
             CURLcode res = curl_easy_perform(m_handle);
 
             curl_slist_free_all(header);
-            if (res != CURLE_OK)
-                return false;
-            return true;
+            return res == CURLE_OK;
         }
 
         bool CurlController::getInitStatus() {
