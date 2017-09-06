@@ -162,7 +162,7 @@ bool doOffsiteBack(const std::string &localPath, const std::string &remotePath, 
     //Creating file to upload
     constexpr char createArchiveString[] = "~7zip~ a ~name~.7z ~src~ -mhe -mx9";
     std::string command = StringFunctions::combineString(createArchiveString, {{"~7zip~", ZIP_PATH},
-                                                                               {"~name~", remotePath},
+                                                                               {"~name~", FilesystemFunctions::getTempFolder() + remotePath},
                                                                                {"~src~",  localPath}});
     if (!pwd.empty())
         command += " -p" + pwd;

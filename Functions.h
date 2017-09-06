@@ -32,6 +32,9 @@ namespace FilesystemFunctions {
     bool saveStringToFile(const std::string &filePath, const std::string &content);
 
     void processFileByChunk(const std::string &path, unsigned int chunkSize, std::function<void (char *, const unsigned int)> processingFu);
+
+    std::string getTempFolder();
+    std::string getRoamingFolder();
 }
 
 namespace TimeFunctions {

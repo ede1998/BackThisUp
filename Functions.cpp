@@ -122,12 +122,11 @@ namespace FilesystemFunctions {
         if (out.is_open()) {
             out << content;
             out.close();
-        } else
-            return false;
-        return true;
+        }
+        return out.is_open();
     }
 
-    void processFileByChunk(const std::string &path, const unsigned int chunkSize, std::function<void (char *, const unsigned int)> processingFu) {
+    void processFileByChunk(const std::string &path, const unsigned int chunkSize, std::function<void(char *, const unsigned int)> processingFu) {
         std::ifstream bigFile(path, std::ios::binary);
         auto buffer = new char[chunkSize];
         try {
@@ -141,6 +140,16 @@ namespace FilesystemFunctions {
             throw;
         }
         delete buffer;
+    }
+
+    std::string getTempFolder() {
+        char path[MAX_PATH + 1];
+        GetTempPath(MAX_PATH, path);
+        return std::string(path);
+    }
+
+    std::string getRoamingFolder() {
+        //TODO: getpath
     }
 
 }
@@ -157,11 +166,11 @@ namespace TimeFunctions {
         time_t sec = (int) (seconds);
         if (sec >= 3600) {
             t.hours = (unsigned int) (sec % 3600);
-            sec -= 3600*t.hours;
+            sec -= 3600 * t.hours;
         }
-        if (sec >=60) {
+        if (sec >= 60) {
             t.minutes = (char) (sec % 60);
-            sec -= 60*t.minutes;
+            sec -= 60 * t.minutes;
         }
         t.seconds = (char) (sec);
         return t;
