@@ -55,6 +55,9 @@ int main(int argc, char **argv) {
 
     time_t startTime = time(nullptr);
 
+    if (!FilesystemFunctions::createPath(dest))
+        return false;
+
     if (!doBackup(src, dest, comp, doIgnoreExcludes))
         return 0;
 
