@@ -32,6 +32,8 @@ namespace Backup {
         bool m_doNotIgnore = false;
         void load(const std::string &path, const std::string &rootPath);
         void create(const std::string &path);
+        bool isEmpty(const std::string &path);
+        void deleteEmptyFolder(const std::string &path);
         void addFile(File f);
         void addFolder(Folder f);
         void exclude(const std::string &path, std::forward_list<std::string> &files, std::forward_list<std::string> &dirs);

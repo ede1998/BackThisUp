@@ -1,6 +1,7 @@
 
 #include <memory>
 #include "Functions.h"
+#include "LoggingTools/Logger.h"
 
 using std::deque;
 using std::string;
@@ -148,10 +149,17 @@ namespace FilesystemFunctions {
         return std::string(path);
     }
 
-    std::string getRoamingFolder() {
-        //TODO: getpath
+    bool createPath(const std::string &path) {
+        auto parts = split(path);
+        if (path.empty())
+            return false;
+        std::string partPath;
+        for (const auto &el: parts) {
+            partPath += el + "\\";
+            CreateDirectory(partPath.c_str(), nullptr);
+        }
+        return isValidPath(path);
     }
-
 }
 
 namespace TimeFunctions {
@@ -222,4 +230,41 @@ std::string exec(const char *cmd) {
             result += buffer.data();
     }
     return result;
+}
+
+std::string readRegistryString(const std::string &path, const std::string &name) {
+    HKEY hk;
+    auto result = RegOpenKeyEx(HKEY_CURRENT_USER, path.c_str(), 0, KEY_READ, &hk);
+    if (result != ERROR_SUCCESS) {
+        LoggingTools::Logger::getInstance().log("Could not open registry key.", LoggingTools::LVL_ERROR);
+        return "";
+    }
+    DWORD cLen = 5000;
+    unsigned char cData[cLen] = "";
+    RegQueryValueEx(hk, name.c_str(), nullptr, nullptr, cData, &cLen);
+    RegCloseKey(hk);
+    return std::string(reinterpret_cast<char *>(cData));
+}
+
+bool writeRegistryString(const std::string &path, const std::string &name, const std::string &value) {
+    HKEY hk;
+    auto result = RegCreateKeyEx(HKEY_CURRENT_USER, path.c_str(), 0, nullptr, 0, KEY_ALL_ACCESS, nullptr, &hk, nullptr);
+    if (result != ERROR_SUCCESS) {
+        LoggingTools::Logger::getInstance().log("Could not create registry key.", LoggingTools::LVL_ERROR);
+        return false;
+    }
+    DWORD cLen = 5000;
+    unsigned char cData[cLen] = "";
+    memcpy(cData, value.c_str(), cLen);
+    RegSetValueEx(hk, name.c_str(), 0, REG_SZ, cData, value.length());
+    RegCloseKey(hk);
+    return true;
+}
+
+std::string getApplicationPath() {
+    char appPath[_MAX_PATH+1];
+    GetModuleFileName(nullptr,appPath,_MAX_PATH);
+    std::string res(appPath);
+    auto pos = res.rfind("\\");
+    return res.substr(0, pos + 1);
 }

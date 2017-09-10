@@ -38,7 +38,7 @@ namespace {
 
 namespace WebTools {
     OneDriveConnector::OneDriveConnector()
-            : m_refreshToken(FilesystemFunctions::loadFileToString(REFRESH_TOKEN_PATH)),
+            : m_refreshToken(readRegistryString("Software\\BackThisUp", "refresh_token")),
               m_token(""),
               m_isInitialized(false),
               m_fileSize(0),
@@ -51,7 +51,7 @@ namespace WebTools {
                 if (requestTokens(code))
                     m_isInitialized = true;
         }
-        FilesystemFunctions::saveStringToFile(REFRESH_TOKEN_PATH, m_refreshToken);
+        writeRegistryString("Software\\BackThisUp", "refresh_token", m_refreshToken);
     }
 
     bool OneDriveConnector::requestUploadURL(const std::string &remoteFile, std::string &uploadURL) {
@@ -118,7 +118,7 @@ namespace WebTools {
     }
 
     std::string OneDriveConnector::requestCode() {
-        const WebTools::buffer answer = WebTools::stringToBuffer(std::string(DefaultHeader) + FilesystemFunctions::loadFileToString(ANSWER_PAGE_PATH));
+        const WebTools::buffer answer = WebTools::stringToBuffer(std::string(DefaultHeader) + FilesystemFunctions::loadFileToString(getApplicationPath() + ANSWER_PAGE_PATH));
         const std::string requestString = StringFunctions::combineString(RequestCodeString, {{"~redirect_uri~", RedirectURI},
                                                                                              {"~client_id~",    client_id},
                                                                                              {"~scopes~",       Scope}});

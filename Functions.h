@@ -34,7 +34,7 @@ namespace FilesystemFunctions {
     void processFileByChunk(const std::string &path, unsigned int chunkSize, std::function<void (char *, const unsigned int)> processingFu);
 
     std::string getTempFolder();
-    std::string getRoamingFolder();
+    bool createPath(const std::string &path);
 }
 
 namespace TimeFunctions {
@@ -55,3 +55,6 @@ namespace StringFunctions {
 }
 
 std::string exec(const char *cmd);
+std::string readRegistryString(const std::string &path, const std::string &value);
+bool writeRegistryString(const std::string &path, const std::string &name, const std::string &value);
+std::string getApplicationPath();
