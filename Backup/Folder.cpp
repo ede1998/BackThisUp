@@ -44,8 +44,10 @@ namespace Backup {
                 f.copy(rootSrc, rootDest);
             m_filesProcessed++;
         }
-        for (Folder &f: m_folders)
+        for (Folder &f: m_folders) {
             f.backup(rootSrc, rootDest, rootComp);
+            deleteEmptyFolder(FilesystemFunctions::findAbsolutePath(rootDest, f.m_relPath));
+        }
     }
 
     void Folder::create(const string &path) {
@@ -106,6 +108,20 @@ namespace Backup {
         m_doNotIgnore = ignoreExcludes;
         for (Folder &f: m_folders) {
             f.setIgnoreExcludes(ignoreExcludes);
+        }
+    }
+
+    bool Folder::isEmpty(const std::string &path) {
+        return static_cast<bool>(PathIsDirectoryEmpty(path.c_str()));
+    }
+
+    void Folder::deleteEmptyFolder(const std::string &path) {
+        LoggingTools::Logger &lg = LoggingTools::Logger::getInstance();
+        if (isEmpty(path)) {
+            if (RemoveDirectory(path.c_str()))
+                lg.log("Removed directory without content. " + path, LoggingTools::LVL_INFO);
+            else
+                lg.log("Could not remove directory without content. " + path, LoggingTools::LVL_ERROR);
         }
     }
 }

@@ -57,3 +57,4 @@ namespace StringFunctions {
 std::string exec(const char *cmd);
 std::string readRegistryString(const std::string &path, const std::string &value);
 bool writeRegistryString(const std::string &path, const std::string &name, const std::string &value);
+std::string getApplicationPath();

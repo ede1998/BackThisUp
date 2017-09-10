@@ -260,3 +260,11 @@ bool writeRegistryString(const std::string &path, const std::string &name, const
     RegCloseKey(hk);
     return true;
 }
+
+std::string getApplicationPath() {
+    char appPath[_MAX_PATH+1];
+    GetModuleFileName(nullptr,appPath,_MAX_PATH);
+    std::string res(appPath);
+    auto pos = res.rfind("\\");
+    return res.substr(0, pos + 1);
+}

@@ -23,4 +23,4 @@
 
 #define ANSWER_PAGE_PATH "index.html"
 
-#define ZIP_PATH R"(7za.exe)"
+#define ZIP_NAME R"(7za.exe)"

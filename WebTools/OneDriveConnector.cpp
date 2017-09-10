@@ -118,7 +118,7 @@ namespace WebTools {
     }
 
     std::string OneDriveConnector::requestCode() {
-        const WebTools::buffer answer = WebTools::stringToBuffer(std::string(DefaultHeader) + FilesystemFunctions::loadFileToString(ANSWER_PAGE_PATH));
+        const WebTools::buffer answer = WebTools::stringToBuffer(std::string(DefaultHeader) + FilesystemFunctions::loadFileToString(getApplicationPath() + ANSWER_PAGE_PATH));
         const std::string requestString = StringFunctions::combineString(RequestCodeString, {{"~redirect_uri~", RedirectURI},
                                                                                              {"~client_id~",    client_id},
                                                                                              {"~scopes~",       Scope}});
