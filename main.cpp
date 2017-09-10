@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <future>
+#include "Definitions.h"
 #include "TrayIcon/TrayIcon.h"
 #include "Backup/RootFolder.h"
 #include "WebTools/OneDriveConnector.h"
@@ -162,7 +163,7 @@ bool doOffsiteBack(const std::string &localPath, const std::string &remotePath, 
 
     trayIcon.changeDescription(PROGRAM_NAME "\nCreating backup archive.");
     //Creating file to upload
-    constexpr char createArchiveString[] = "~7zip~ a ~name~.7z ~src~ -mhe -mx9";
+    constexpr char createArchiveString[] = "\"~7zip~\" a ~name~.7z ~src~ -mhe -mx9";
     std::string command = StringFunctions::combineString(createArchiveString, {{"~7zip~", getApplicationPath() + ZIP_NAME},
                                                                                {"~name~", FilesystemFunctions::getTempFolder() + remotePath},
                                                                                {"~src~",  localPath}});
