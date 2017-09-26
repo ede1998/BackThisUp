@@ -75,15 +75,16 @@ namespace WebTools {
     }
 
     bool OneDriveConnector::upload(const std::string &localFile, const std::string &remoteFile) {
+        m_fileSize = FilesystemFunctions::getFileSize(localFile);
+        if (m_fileSize == 0)
+            return false;
+
         std::string uploadURL, sha1 = SHA1::from_file(localFile);
         std::transform(std::begin(sha1), std::end(sha1), std::begin(sha1), toupper);
 
         if (!requestUploadURL(remoteFile, uploadURL))
             return false;
 
-        m_fileSize = FilesystemFunctions::getFileSize(localFile);
-        if (m_fileSize == 0)
-            return false;
 
         Curl::CurlController cc(uploadURL);
         if (!cc.getInitStatus())
@@ -102,7 +103,7 @@ namespace WebTools {
             //answer = cc.getLastAnswer(); //TODO: maybe process answer
         };
 
-        FilesystemFunctions::processFileByChunk(localFile, 1024 * 320 * 32, lambda);
+        FilesystemFunctions::processFileByChunk(localFile, 1024 * 1024 * 10, lambda);
         std::string answer = cc.getLastAnswer();
         JSONObject parsedAnswer = JSONObject(answer);
 
@@ -207,5 +208,6 @@ namespace WebTools {
 
     long long int OneDriveConnector::getFileSize() {
         return m_fileSize;
+
     }
 }

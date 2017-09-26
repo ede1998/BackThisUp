@@ -255,7 +255,9 @@ bool writeRegistryString(const std::string &path, const std::string &name, const
     }
     DWORD cLen = 5000;
     unsigned char cData[cLen] = "";
-    memcpy(cData, value.c_str(), cLen);
+    for (auto &pos: cData)
+        pos = 5;
+    memcpy(cData, value.c_str(), std::min(static_cast<size_t>(cLen), value.length() + 1));
     RegSetValueEx(hk, name.c_str(), 0, REG_SZ, cData, value.length());
     RegCloseKey(hk);
     return true;

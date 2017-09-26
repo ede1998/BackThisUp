@@ -17,7 +17,9 @@ TrayIcon::TrayIcon trayIcon(PROGRAM_NAME);
 int main(int argc, char **argv) {
     using namespace std;
     LoggingTools::Logger &loggerInstance = LoggingTools::Logger::getInstance();
-
+    for (int i = 0; i < argc; i++) {
+        loggerInstance.log(std::string(argv[i]), LoggingTools::LVL_INFO);
+    }
     bool doIgnoreExcludes = false;
 
     //parse input parameters
@@ -160,10 +162,10 @@ bool doBackup(const std::string &src, const std::string &dest, const std::string
 
 bool doOffsiteBack(const std::string &localPath, const std::string &remotePath, const std::string &pwd) {
     LoggingTools::Logger &loggerInstance = LoggingTools::Logger::getInstance();
-
+    loggerInstance.log("Creating archive", LoggingTools::LVL_INFO);
     trayIcon.changeDescription(PROGRAM_NAME "\nCreating backup archive.");
     //Creating file to upload
-    constexpr char createArchiveString[] = "\"~7zip~\" a ~name~.7z ~src~ -mhe -mx9";
+    constexpr char createArchiveString[] = "\"~7zip~\" a ~name~.7z ~src~ -mhe";
     std::string command = StringFunctions::combineString(createArchiveString, {{"~7zip~", getApplicationPath() + ZIP_NAME},
                                                                                {"~name~", FilesystemFunctions::getTempFolder() + remotePath},
                                                                                {"~src~",  localPath}});
@@ -172,6 +174,7 @@ bool doOffsiteBack(const std::string &localPath, const std::string &remotePath, 
     std::string res = exec(command.c_str());
     if (res.find("Everything is Ok") == std::string::npos) {
         loggerInstance.log("Could not create archive.", LoggingTools::LVL_ERROR);
+        loggerInstance.log(command + " " + res, LoggingTools::LVL_NORMAL);
         return false;
     }
 
@@ -189,17 +192,18 @@ bool doOffsiteBack(const std::string &localPath, const std::string &remotePath, 
         return false;
     }
     bool successfullyUploaded;
-    std::thread tUpload([&successfullyUploaded, &odc, &remotePath]() { successfullyUploaded = odc.upload(remotePath + ".7z", remotePath); });
+    std::thread tUpload([&successfullyUploaded, &odc, &remotePath]() { successfullyUploaded = odc.upload(FilesystemFunctions::getTempFolder() + remotePath + ".7z", remotePath + ".7z"); });
     long long int lastProgress = -1;
-    while (odc.getProgress() != odc.getFileSize())
+    auto fsize = FilesystemFunctions::getFileSize(FilesystemFunctions::getTempFolder() + remotePath + ".7z");
+    while (odc.getProgress() != fsize)
         if (odc.getProgress() != lastProgress) {
             lastProgress = odc.getProgress();
-            trayIcon.changeDescription(PROGRAM_NAME "\nFortschritt: " + std::to_string(lastProgress) + "/" + std::to_string(odc.getFileSize()));
+            trayIcon.changeDescription(PROGRAM_NAME "\nFortschritt: " + std::to_string(lastProgress / 1024) + "/" + std::to_string(fsize / 1024));
         }
     tUpload.join();
     if (successfullyUploaded)
         loggerInstance.log("Successfully uploaded backup.", LoggingTools::LVL_INFO);
     else
         loggerInstance.log("Could not upload backup.", LoggingTools::LVL_ERROR);
-    return true;
+    return successfullyUploaded;
 }
