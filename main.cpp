@@ -197,7 +197,7 @@ bool doOffsiteBack(const std::string &localPath, const std::string &remotePath, 
     auto fsize = FilesystemFunctions::getFileSize(FilesystemFunctions::getTempFolder() + remotePath + ".7z");
     while (odc.getProgress() != fsize)
         if (odc.getProgress() != lastProgress) {
-            lastProgress = odc.getProgress();
+            lastProgress = odc.getProgress();  //TODO: fsize = 0?
             trayIcon.changeDescription(PROGRAM_NAME "\nFortschritt: " + std::to_string(lastProgress / 1024) + "/" + std::to_string(fsize / 1024));
         }
     tUpload.join();
