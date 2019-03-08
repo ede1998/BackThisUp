@@ -1,0 +1,54 @@
+http https://login.live.com/oauth20_authorize.srf client_id==6df12061-1ba8-4e21-b802-ddc10c63a63f scope==onedrive.readwrite response_type==token redirect_uri=='https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf' Authorization:'bearer EwD4Aq1DBAAUGCCXc8wU/zFu9QnLdZXy+YnElFkAAbQFXBNt5/wQuoEfd8Tg1rof4BVdMogw0Nnbhw0UeIUmkI4jVuldsKmYHplGb4Ukr4OS1Dp0d98CJmF+Hrk6gspUJT+VWV/ScsPY4+yVh3V7WQialRgWdOv5vMhTq4U3WzS3NHKxSn6+qKdtvCxepU6K2afG2SxU/nFIjd2p2504O4IlKyc6i0BeiYJCae84ryUeulti5OFWLWpw9PH94fuMmYvFJ5FwQYE3UmuwyfPgZvqdPcILnQvGSIpWNJA3wfTkpqbP3946mJoaqGkE5WO1adBEwpBHEUztD7fGKESQCrEBmnUc9+j4r0ANhi/hu7TMVx+DQ47HWL9beP7XHxEDZgAACAwPWvHpCEoqyAEeZ2GZHsDTKcNzU2zXAQ+wx39H/05dGn0Bb37O/VnNVeLYbD91CGRgaszPD1a9GAWW8qsvVpEaXz3oa4Twwd6CNRWCmYoCTMuHU4HTfQ36DwDpjpfUBFKT3TOaBSXI/YWQfVlpOJoD+22SAx+KyBia0gi1YNkJxHrjJUmKk6BBLLlqMBhV+USI+d6UZhPGm2FJFX9Pv6PlfESIAvuj4BzUkgaYx77ISCrUfsnK/9SDgQ83kNk0lowFXCeh1UbwBPntLUVmgyUCiW/24weEKn5S1m5D8Y2Bza/z51WiHrdu+Ld182SYje1AsqW/eR5q0tPPZz9Fny4EGqkF3pLe99UMBngActK9qpEl0y7n4+7GSyBAz5YVYvxplT6GcWePxleXduOHNhE451JuM+sSqdA4JImvY/pFJQVc0042dyYHcJrCoCexBCBZJ+SUsFxi3yxb6j15dJaXkxbIV+AvK6NxndMcqazunZxiLzLzz65F4j9FGUqerd5i0LOOGgBlpzDBiI4+FNQ0E0DQefrTTF4XnCU2yiT0CtYDRq2PWEQLaMo/al4s/G3257HL72k8edGQzVwkU4pVJEKICFVModERudl//A7KXqD6AQ=='
+
+http https://graph.microsoft.com/v1.0/me/messages Authorization:'bearer EwD4Aq1DBAAUGCCXc8wU/zFu9QnLdZXy+YnElFkAAbQFXBNt5/wQuoEfd8Tg1rof4BVdMogw0Nnbhw0UeIUmkI4jVuldsKmYHplGb4Ukr4OS1Dp0d98CJmF+Hrk6gspUJT+VWV/ScsPY4+yVh3V7WQialRgWdOv5vMhTq4U3WzS3NHKxSn6+qKdtvCxepU6K2afG2SxU/nFIjd2p2504O4IlKyc6i0BeiYJCae84ryUeulti5OFWLWpw9PH94fuMmYvFJ5FwQYE3UmuwyfPgZvqdPcILnQvGSIpWNJA3wfTkpqbP3946mJoaqGkE5WO1adBEwpBHEUztD7fGKESQCrEBmnUc9+j4r0ANhi/hu7TMVx+DQ47HWL9beP7XHxEDZgAACAwPWvHpCEoqyAEeZ2GZHsDTKcNzU2zXAQ+wx39H/05dGn0Bb37O/VnNVeLYbD91CGRgaszPD1a9GAWW8qsvVpEaXz3oa4Twwd6CNRWCmYoCTMuHU4HTfQ36DwDpjpfUBFKT3TOaBSXI/YWQfVlpOJoD+22SAx+KyBia0gi1YNkJxHrjJUmKk6BBLLlqMBhV+USI+d6UZhPGm2FJFX9Pv6PlfESIAvuj4BzUkgaYx77ISCrUfsnK/9SDgQ83kNk0lowFXCeh1UbwBPntLUVmgyUCiW/24weEKn5S1m5D8Y2Bza/z51WiHrdu+Ld182SYje1AsqW/eR5q0tPPZz9Fny4EGqkF3pLe99UMBngActK9qpEl0y7n4+7GSyBAz5YVYvxplT6GcWePxleXduOHNhE451JuM+sSqdA4JImvY/pFJQVc0042dyYHcJrCoCexBCBZJ+SUsFxi3yxb6j15dJaXkxbIV+AvK6NxndMcqazunZxiLzLzz65F4j9FGUqerd5i0LOOGgBlpzDBiI4+FNQ0E0DQefrTTF4XnCU2yiT0CtYDRq2PWEQLaMo/al4s/G3257HL72k8edGQzVwkU4pVJEKICFVModERudl//A7KXqD6AQ=='
+
+http POST https://login.microsoftonline.com/common/oauth2/v2.0/token client_id:6df12061-1ba8-4e21-b802-ddc10c63a63f scope:https://graph.microsoft.com/.default client_secret:wm8WiztuxtsZDjAHyxBhabT grant_type:client_credentials
+
+http https://login.microsoftonline.com/common/oauth2/v2.0/logout post_logout_redirect_uri==http://localhost
+
+wm8WiztuxtsZDjAHyxBhabT
+
+an die access tokens denken!!!!!!!!!!!!!!!!!!!!!!!
+
+
+Token
+Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IlZXVkljMVdEMVRrc2JiMzAxc2FzTTVrT3E1USIsImtpZCI6IlZXVkljMVdEMVRrc2JiMzAxc2FzTTVrT3E1USJ9.eyJhdWQiOiJodHRwczovL2dyYXBoLm1pY3Jvc29mdC5jb20iLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC83MmY5ODhiZi04NmYxLTQxYWYtOTFhYi0yZDdjZDAxMWRiNDcvIiwiaWF0IjoxNTAzNjU3MDQ3LCJuYmYiOjE1MDM2NTcwNDcsImV4cCI6MTUwMzY2MDk0NywiYWlvIjoiWTJGZ1lLaityTVRRMWxGcHlIajBWYnV5NzdscUFBPT0iLCJhcHBfZGlzcGxheW5hbWUiOiJCYWNrVGhpc1VwIiwiYXBwaWQiOiI2ZGYxMjA2MS0xYmE4LTRlMjEtYjgwMi1kZGMxMGM2M2E2M2YiLCJhcHBpZGFjciI6IjEiLCJpZHAiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC83MmY5ODhiZi04NmYxLTQxYWYtOTFhYi0yZDdjZDAxMWRiNDcvIiwidGlkIjoiNzJmOTg4YmYtODZmMS00MWFmLTkxYWItMmQ3Y2QwMTFkYjQ3IiwidXRpIjoiT1BodTg3b1dxVUtZd293aWZuWVNBQSIsInZlciI6IjEuMCJ9.b2OovKYkv3LViIrE1g-B5LECUOfllXVoykjpqWf4uxQwUb1YFvgD_f3PGMZPzMc-RjAmaqFXwJH1NKhfyoT8htgCzHW_-fc8aVIdOsFhXbqbB3l9fvpv2FGw3UrgKOKfMAhxZ3lOiSa9UgzZuU_4ZewhMdduBDSj2YrBSHeGSDF2sKjnftpgyrpd_unZf1Gp8zIqOyzBqvJEw42V2-_7Y5u8iAt5taSj0ZcR82B6q8eS2RdaQG3UPzaac8h-PntSn98bp4WEe7R4WG2JjUDobaVSe3Qfr_hLJ5lTTiWh2nwXoFrKOjQ5u74CKJ-ENk1pSJX8GtNzSeiLE5PLZdUMEA
+Bearer EwAoA8l6BAAU7p9QDpi/D7xJLwsTgCg3TskyTaQAARnA3sYeJxkr8+35aFm9Ln4R37bcyPcsWsqju8ccjKrqPxE5FkUvXJ7p5nrtgrBb/LUTm/AVQW8ze1MUyticYIz+HvcF+5XeBUw5S1MceQViQU2F1+ACJUySyyMq6lb4nNTJaQ+aGsU7QYO+YHRdq+suk302ukR7bG4bgYh1mTzglt8lTrcyxD2JC1NOKinSXoE5i5oPOm8BjxLqHckgec3e4z+corme4OQxdmbMi7/BLi82olARDGU18C5JBHmHnmQYU8Y/CISA4TomFMaCb6A4A0huTFaqm1ruxhFWFMpbffNU2zAlQfsmyduqmPiMUUba2ibbRoRuF4lR2SoTXzwDZgAACFDPQKxZDRLH+AHpBTPu7PN4Es1Tp3Gomj/jKWEoxisdUkP9qPEVgucK5Yy2oZY7ppZjsYmxbcUdRBnWl0Ek3yCZYU46MSjLqqdLsEjT+YTpDUTdZjmg7xLxRMhOARkXXPJImZKbjdikR0IFO7pNrtOvZ+S+kVmqfjqiydfjKcNFxT59XVVTU78mD+Oq6v7As8hR4PshnHbH7b3w8v9KUeOgnCxaNGMKvMqzHCarphDVg7EsAmde6L+79SA78kvP0TjqDFm3tsfPyQc0NMSlZpFaq1Uqboxqr1VK2uKvovUge6sCYsUNtIjLmbuv+PNUyxecT51DtvxMwT0ovQntMNZ7zLvmZ6/Qj8WIS68tJmlmy8Y7v1VDpLTXgzjJS/JRD4N+XxR7X1t9U0RXiSwWXmWnWuJixamFrzzKSRfmqBUHtV5m3pGKQ6eCKA6pVkeGhX1OHNVTd7BVzQVbFf9GGNn1b0/n4VgNKwHMFKx1YJP/2ViIdX19MdnjlEKuUT5RCSHwLsrs2lETX6Xj/5YC+tv+r9+uofndNCLwC6SCqbdKSEpEpSLpAdKeb0MhX45ayI6g/X/k4gpKObiUhjSwy5y7gTkb6XTtmwr14ioJORvgocrqSviVmPYrtOMPg3F4rL4/B9tV8Q4y6Hpyeirj+PApdqO8lNb7UnSKViPoam2902goAg==
+
+https://login.microsoftonline.com/common/adminconsent?client_id=6df12061-1ba8-4e21-b802-ddc10c63a63f&state=12345&redirect_uri=http://localhost/myapp/permissions
+
+
+
+REQUEST-CODE
+--------------------------------------------------------------------------------------------
+http https://login.microsoftonline.com/common/oauth2/v2.0/authorize client_id==6df12061-1ba8-4e21-b802-ddc10c63a63f scope==files.readwrite response_type==code redirect_uri==http://localhost
+response:
+http://localhost/?code=M4fe06fe1-c992-4d45-9da9-1ee7384848a2
+
+REQUEST-TOKEN
+-------------------------------------------------------------------------
+
+POST https://login.microsoftonline.com/common/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id={client_id}&redirect_uri={redirect_uri}&client_secret={client_secret}
+&code={code}&grant_type=authorization_code
+
+REFRESH-TOKEN
+-------------------------------------------------------------------------
+vllt offline_access noetig
+POST https://login.microsoftonline.com/common/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+client_id={client_id}&redirect_uri={redirect_uri}&client_secret={client_secret}
+&refresh_token={refresh_token}&grant_type=refresh_token
+
+UPLOAD-SMALL-FILE
+-----------------------------------------------------------------------------
+PUT /drive/root:{item-path}:/content
+Content-Type: text/plain
+
+The contents of the file goes here.
+
+SIGN-OUT
+-------------------------------------------------------------------------
+GET https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri={redirect-uri}

@@ -1,0 +1,1 @@
+7za.exe a -pPASSWORT ARCHIVE.7z FOLDER -mhe -mx9
