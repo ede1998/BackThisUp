@@ -19,10 +19,12 @@ namespace Backup {
         unsigned int getFileCount() const;
         unsigned int getFileProcessedCount() const;
         void setIgnoreExcludes(bool ignoreExcludes);
+        void init();
     protected:
         std::forward_list<File> m_files{};
         std::forward_list<Folder> m_folders{};
         std::string m_relPath;
+        std::string m_rootPath;
 
         unsigned int m_filesProcessed{0};
 

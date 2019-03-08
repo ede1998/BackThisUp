@@ -8,8 +8,8 @@ using std::string;
 
 namespace Backup {
     Folder::Folder(const string &rootPath, const string &relPath)
-            : m_relPath(relPath) {
-        load(FilesystemFunctions::findAbsolutePath(rootPath, relPath), rootPath);
+            : m_relPath(relPath),
+              m_rootPath(rootPath) {
     }
 
     string Folder::getRelPath() const {
@@ -123,5 +123,9 @@ namespace Backup {
             else
                 lg.log("Could not remove directory without content. " + path, LoggingTools::LVL_ERROR);
         }
+    }
+
+    void Folder::init() {
+        load(FilesystemFunctions::findAbsolutePath(m_rootPath, m_relPath), m_rootPath);
     }
 }
